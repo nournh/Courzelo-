@@ -1,0 +1,168 @@
+<div class="row mb-3 d-flex align-items-center justify-content-between">
+    <!-- Search Bar -->
+    <div class="col-md-6 col-lg-4 position-relative">
+        <div class="input-group">
+            <input id="keyword-users" placeholder="Search Users" [formControl]="searchControl"
+                class="form-control form-control-rounded pr-5" type="text">
+            <span class="input-group-text position-absolute search-icon"><i class="i-Magnifi-Glass1"></i></span>
+        </div>
+    </div>
+
+    <!-- Export Button -->
+   <!-- Export & Add User Buttons -->
+   <div class="col-auto d-flex" style="display: flex; gap: 8px;">
+    <button class="btn btn-success export-btn" (click)="exportToExcel()">
+        <i class="fas fa-file-export"></i> Exporter la liste
+    </button>
+    <button class="btn btn-primary" (click)="openAddUserModal()">
+        <i class="fas fa-user-plus me-2"></i>
+    </button>
+</div>
+
+
+<!-- User Form Modal -->
+<div *ngIf="isAddUserModalOpen" class="modal fade show d-block" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ajouter un utilisateur</h5>
+              
+                
+            </div>
+            <div class="modal-body">
+                <form (ngSubmit)="addUser()">
+                    <div class="mb-3">
+                        <label>Email</label>
+                        <input type="email" class="form-control" [(ngModel)]="newUser.email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Nom</label>
+                        <input type="text" class="form-control" [(ngModel)]="newUser.name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Rôle</label>
+                        <select class="form-select" [(ngModel)]="newUser.role" name="role" required>
+                            <option *ngFor="let role of availableRoles" [value]="role">{{ role }}</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success">Ajouter</button>
+                    <button type="button" class="btn btn-secondary ms-2" (click)="closeAddUserModal()">Annuler</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Overlay -->
+<div *ngIf="isAddUserModalOpen" class="modal-backdrop fade show"></div>
+
+<!-- User Table -->
+<ngx-datatable style="height: calc(100vh - 270px); box-shadow: none; border-radius: 10px; overflow: hidden;"
+    class="material fullscreen datatable-header datatable-body"
+    [columnMode]="'force'"
+    [headerHeight]="50"
+    [footerHeight]="0"
+    [rowHeight]="85"
+    [scrollbarV]="true"
+    [scrollbarH]="true"
+    [rows]="users | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage, totalItems: totalItems }">
+
+    <!-- Email Column -->
+    <ngx-datatable-column name="Email">
+        <ng-template ngx-datatable-header-template>Email</ng-template>
+        <ng-template ngx-datatable-cell-template let-row="row">
+            {{ row.email }}
+        </ng-template>
+    </ngx-datatable-column>
+
+    <!-- Roles Column -->
+    <ngx-datatable-column name="Roles">
+        <ng-template ngx-datatable-header-template>Roles</ng-template>
+        <ng-template ngx-datatable-cell-template let-row="row">
+            <div class="role-tags">
+                <div *ngFor="let role of row.roles">
+                    <app-role [role]="role"></app-role>
+                </div>
+            </div>
+        </ng-template>
+    </ngx-datatable-column>
+
+    <!-- Name Column -->
+    <ngx-datatable-column name="Name">
+        <ng-template ngx-datatable-header-template>Name</ng-template>
+        <ng-template ngx-datatable-cell-template let-row="row">
+            {{ row.profile?.name || "N/A" }}
+        </ng-template>
+    </ngx-datatable-column>
+
+    <!-- Status Column -->
+    <ngx-datatable-column name="Status">
+        <ng-template ngx-datatable-header-template>Status</ng-template>
+        <ng-template ngx-datatable-cell-template let-row="row">
+            <div class="status-tags">
+                <!-- Enabled/Disabled Icon -->
+                <span (click)="toggleEnabled(row)" class="status-icon"
+                      [title]="row.security?.enabled ? 'Enabled' : 'Disabled'">
+                    <i [ngClass]="row.security?.enabled ? 'fas fa-check-circle text-success' : 'fas fa-times-circle text-danger'"
+                       class="fs-4"></i>
+                </span>
+                
+                <!-- Ban/Unban Icon -->
+                <span (click)="toggleBan(row)" class="status-icon"
+                      [title]="row.security?.ban ? 'Banned' : 'Not Banned'">
+                    <i [ngClass]="row.security?.ban ? 'fas fa-ban text-danger' : 'fas fa-check-circle text-success'"
+                       class="fs-4"></i>
+                </span>
+            </div>
+        </ng-template>
+    </ngx-datatable-column>
+    
+    
+
+    <!-- Role Management -->
+    <ngx-datatable-column name="Change Role" [width]="270">
+        <ng-template ngx-datatable-header-template>Role</ng-template>
+        <ng-template ngx-datatable-cell-template let-row="row">
+            <form class="d-flex align-items-center" (ngSubmit)="changeUserRole(row)">
+                <select [(ngModel)]="selectedRole" class="form-select me-2" name="role">
+                    <option *ngFor="let role of availableRoles" [value]="role">{{ role }}</option>
+                </select>
+                <button class="btn btn-warning" type="submit"><i class="fas fa-user-edit"></i></button>
+            </form>
+        </ng-template>
+    </ngx-datatable-column>
+
+    <!-- Actions Column -->
+    <ngx-datatable-column name="Actions">
+        <ng-template ngx-datatable-header-template>Actions</ng-template>
+        <ng-template ngx-datatable-cell-template let-row="row">
+            <div style="display: flex;">
+                <button class="btn btn-info btn-sm" style="margin-right: 8px;">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-warning btn-sm" style="margin-right: 8px;">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-danger btn-sm">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+            
+            
+        </ng-template>
+    </ngx-datatable-column>
+    
+    
+<!-- Pagination Controls -->
+<div class="pagination-container text-center mt-3">
+    <pagination-controls 
+        (pageChange)="currentPage = $event"
+        [itemsPerPage]="itemsPerPage"
+        [totalItems]="totalItems"
+        previousLabel="‹"
+        nextLabel="›"
+        firstLabel="«"
+        lastLabel="»"
+        class="d-flex justify-content-center">
+    </pagination-controls>
+</div>

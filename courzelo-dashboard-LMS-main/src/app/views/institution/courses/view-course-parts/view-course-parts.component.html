@@ -1,0 +1,33 @@
+<div class="modal-content">
+    <div class="modal-header">
+        <h5 class="modal-title">Course Parts List</h5>
+        <button (click)="onClose()" type="button" class="close" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <div class="modal-body">
+
+        <div  class="row">
+            <ng-container *ngIf="courseResponse && courseResponse.courseParts && Object.keys(courseResponse.courseParts).length > 0; else noModuleParts">
+                <div class="col-md-6 mb-4" *ngFor="let part of courseResponse.courseParts | keyvalue">
+                    <div class="card h-100">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title text-primary">{{ part.key }}</h5>
+                            <p class="card-text text-muted">Hours: {{ part.value }}</p>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+            <ng-template #noModuleParts>
+                <div class="col-12 text-center">
+                    <p>No course parts found.</p>
+                </div>
+            </ng-template>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button (click)="onClose()" type="button" class="btn btn-secondary">Close</button>
+    </div>
+</div>

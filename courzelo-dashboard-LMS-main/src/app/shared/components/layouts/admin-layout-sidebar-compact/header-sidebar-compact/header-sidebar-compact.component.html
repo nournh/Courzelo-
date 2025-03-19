@@ -1,0 +1,51 @@
+<div class="main-header">
+        <div class="logo">
+            <img src="./assets/images/logo.png" alt="">
+        </div>
+    
+        <div class="menu-toggle" (click)="toggelSidebar()">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    
+        <div style="margin: auto"></div>
+    
+        <div class="header-part-right">
+            <i fullScreenWindow class="i-Full-Screen header-icon d-none d-sm-inline-block" role="button"></i>
+            <div ngbDropdown [placement]="'bottom-right'" class="d-none d-sm-inline-block">
+                <i ngbDropdownToggle class="i-Gear text-muted header-icon" role="button"></i>
+                <div ngbDropdownMenu class="menu-icon-grid-dropdown">
+                    <div class="menu-icon-grid">
+                      <a href="forum/addforum"><i class="i-Hand"></i> Forum</a>
+                        <a href="chatgroups/add"><i class="i-Support"></i> add Group</a>
+                        <a href="chatgroups/list"><i class="i-Support"></i> List Group</a>
+                       <!-- <a href="ticketsStudent/list"><i class="i-Support"></i> Student's Support</a>
+                        <a href="mailing"><i class="icon-regular i-Mail-Reply"></i> Mail</a>-->
+                    </div>
+                </div>
+            </div>
+
+    
+            <div ngbDropdown [placement]="'bottom-right'" class="user col align-self-end">
+                <img [src]="imageSrc || 'assets/default-image.jpg' " id="userDropdown" ngbDropdownToggle alt="">
+
+                <div ngbDropdownMenu aria-labelledby="userDropdown">
+                    <div *ngIf="user$ | async as user" class="dropdown-header">
+                        <i class="i-Lock-User mr-1"></i> {{ (user?.profile.name && user?.profile.lastname) ? (user?.profile.name + " " + user?.profile.lastname) : user?.email }}
+                    </div>
+                    <button *ngIf="user$ | async as user" class="dropdown-item" [routerLink]="'/pages/profile/' + user?.email">My profile</button>
+                    <button class="dropdown-item" routerLink="/settings/profile">Profile settings</button>
+                    <button class="dropdown-item" routerLink="/settings/account">Account settings</button>
+                    <button class="dropdown-item" (click)="signout()">Sign out</button>
+                </div>
+                
+            </div>
+
+            
+        </div>
+    
+    </div>
+  
+        
+    

@@ -1,0 +1,53 @@
+.linkedin-profile {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header-cover {
+  position: relative;
+  height: 150px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5));
+}
+
+.cover-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-pic-container {
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid white;
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  background: white;
+}
+
+.profile-picture {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.user-info {
+  margin-top: 70px;
+}
+
+.bio {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 5px;
+  font-size: 14px;
+  color: #555;
+  text-align: center;
+  margin: 10px 20px;
+}
+
+.btn {
+  border-radius: 20px;
+}

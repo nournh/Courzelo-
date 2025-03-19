@@ -1,0 +1,136 @@
+<div *ngIf="!currentInstitution" class="loadscreen">
+    <img src="assets/images/logo.png" class="logo mb-3" style="display: none" alt="">
+    <div class="loader-bubble loader-bubble-primary d-block"></div>
+</div>
+<div *ngIf="currentInstitution"  class="">
+    <div class="breadcrumb-container d-flex justify-content-between align-items-center">
+        <h1 >{{currentInstitution.name || "institution name"}}'s classes</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a>{{currentInstitution.name}}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Classes</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="separator-breadcrumb border-top mb-3"></div>
+    <div class="row justify-content-between">
+        <div class="col-md-6 col-lg-4">
+            <div class="input-group mb-3 ">
+                <input id="keyword-users" placeholder="Search Classes" [formControl]="searchControl" class="form-control form-control-rounded pr-5" type="text">
+                <span class="input-group-text position-absolute search-icon"><i class="i-Magnifi-Glass1"></i></span>
+            </div>
+        </div>
+        <div class="col-md-2 mb-4  " style="height: 4vh;">
+            <button (click)="openAddClassModal()" class="btn btn-primary btn-rounded m-1 " ><i class="fa fa-add"></i> Create class</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card o-hidden">
+
+                <div *ngIf="loadingClasses" class="d-flex justify-content-center align-items-center" style="height: 50vh;">
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="spinner-glow spinner-glow-primary mr-5" style="font-size: 3rem;"></span>
+                    </div>
+                </div>
+                <div *ngIf="!loadingClasses">
+                    <ngx-datatable
+                            style="height: calc(100vh - 270px); box-shadow: none"
+                            class="material fullscreen"
+                            [columnMode]="'force'"
+                            [columns]="[
+        { name: 'Name' },
+        { name: 'Program', cellTemplate: program, width: 200 },
+        { name: 'Students', cellTemplate: students, width: 200 },
+        { name: 'Courses', cellTemplate: cours, width: 200 },
+        { name: 'Actions', prop: 'id', cellTemplate: deleteBtnTemplate, width: 290 }
+    ]"
+                            [headerHeight]="50"
+                            [footerHeight]="50"
+                            [rowHeight]="100"
+                            [scrollbarV]="true"
+                            [scrollbarH]="true"
+                            [externalPaging]="true"
+                            [count]="totalItemsClasses"
+                            [offset]="(currentPageClasses - 1) * itemsPerPageClasses"
+                            [limit]="itemsPerPageClasses"
+                            [rows]="classes | paginate: { itemsPerPage: itemsPerPageClasses, currentPage: currentPageClasses, totalItems: totalItemsClasses }">
+                        <ng-template #program let-row="row" let-value="value">
+                            <span>{{ row.simplifiedProgram?.name || " " }}</span>
+                        </ng-template>
+                        <ng-template #students let-row="row" let-value="value">
+                            <button class="btn btn-link" (click)="openViewStudentsModal(row)">
+                                <i class="fa fa-eye"></i> Show Students
+                            </button>
+                        </ng-template>
+
+                        <ng-template #cours let-row="row" let-value="value">
+                            <button class="btn btn-link" (click)="openViewCoursesModal(row)">
+                                <i class="fa fa-eye"></i> Show Courses
+                            </button>
+                        </ng-template>
+
+                        <!-- Modal Template -->
+
+                        <ng-template #deleteBtnTemplate let-row="row" let-value="value">
+                                <button class="btn btn-warning btn-rounded  mr-2" (click)="openEditClassModal(row)">
+                                    <i class="fa fa-edit"></i> Edit
+                                </button>
+                                <button class="btn btn-danger btn-rounded  mr-2" (click)="modalConfirmClassFunction(modalConfirmClass, row)">
+                                    <i class="fa fa-trash-can"></i> Delete
+                                </button>
+                        </ng-template>
+
+                    </ngx-datatable>
+                </div>
+                <pagination-controls (pageChange)="currentPageClasses = $event"></pagination-controls>
+            </div>
+        </div>
+    </div>
+<ng-template #modalConfirmClass let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-title-class">Class removal</h4>
+        <button type="button" class="close" aria-label="Close button" aria-describedby="modal-title" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <p><strong>Are you sure you want to remove the class <span class="text-primary">{{ currentClass.name }}</span> from {{currentInstitution.name}}?</strong></p>
+        <p>All information associated with this class will be permanently deleted from the institution.
+            <span class="text-danger">This operation cannot be undone.</span>
+        </p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary btn-rounded" (click)="modal.dismiss('cancel')">Cancel</button>
+        <button type="button" ngbAutofocus class="btn btn-danger btn-rounded" (click)="modal.close('Ok')">Ok</button>
+    </div>
+</ng-template>
+    <ng-template #listModal let-modal>
+        <div class="modal-header">
+            <h4 class="modal-title">{{ modalTitle }}</h4>
+            <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Email</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let item of modalList; let i = index">
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ item }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="modal.dismiss('Close click')">Close</button>
+        </div>
+    </ng-template>
+</div>

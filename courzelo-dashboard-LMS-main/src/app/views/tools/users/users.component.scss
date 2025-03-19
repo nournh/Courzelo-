@@ -1,0 +1,51 @@
+.icon-enabled {
+  transition: color 0.3s ease;
+}
+
+.icon-disabled {
+  transition: color 0.3s ease;
+  position: relative;
+}
+
+.icon-enabled:hover {
+  color: #218838; /* Darker green for enabled */
+}
+
+.icon-disabled:hover {
+  color: white; /* Texte blanc pour la lisibilité */
+}
+
+.icon-disabled:hover::after {
+  content: "Disabled";
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: black;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.icon-banned:hover {
+  color: #c82333; /* Darker red for banned */
+}
+.status-tags span {
+  cursor: pointer; /* Ensures the cursor changes */
+}
+
+.status-tags span:hover {
+  color: black !important; /* Makes the icon black when hovered */
+}
+.status-tags {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.status-tags span:hover {
+  color: black; /* Change icon color on hover */
+}

@@ -1,0 +1,31 @@
+.status-expired {
+  color: red;
+  font-weight: bold;
+}
+
+.status-accepted {
+  color: green;
+  font-weight: bold;
+}
+
+.status-pending {
+  color: orange;
+  font-weight: bold;
+}
+.input-group {
+  display: flex;
+  align-items: center;
+}
+
+.input-group .search-icon {
+  background-color: transparent;
+  border: none;
+  padding-left: 10px;
+}
+
+#keyword-users {
+  border-top-right-radius: 50px; /* adjust for desired roundness */
+  border-bottom-right-radius: 50px;
+  border-bottom-left-radius: 50px;
+  border-top-left-radius: 50px;
+}

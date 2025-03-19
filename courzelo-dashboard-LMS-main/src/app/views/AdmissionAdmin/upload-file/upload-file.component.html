@@ -1,0 +1,8 @@
+<div class="form-group">
+    <label for="file">Choose file</label>
+    <input id="file" class="form-control form-control-rounded" type="file" (change)="onFileSelected($event)">
+  </div>
+  <button class="btn btn-primary btn-block btn-rounded mt-3" (click)="onUpload()">Upload</button>
+
+  <p *ngIf="uploadMessage">{{ uploadMessage }}</p>
+  

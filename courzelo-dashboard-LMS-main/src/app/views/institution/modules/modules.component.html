@@ -1,0 +1,94 @@
+<div *ngIf="!currentProgram" class="loadscreen">
+    <img src="assets/images/logo.png" class="logo mb-3" style="display: none" alt="">
+    <div class="loader-bubble loader-bubble-primary d-block"></div>
+</div>
+<div *ngIf="currentProgram" class="">
+    <div class="breadcrumb-container d-flex justify-content-between align-items-center">
+        <h1 >{{currentProgram.name}}'s modules</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a [routerLink]="['/institution', currentProgram.institutionID, 'programs']">Programs</a></li>
+                <li class="breadcrumb-item"><a>{{currentProgram.name}}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Modules</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="separator-breadcrumb border-top mb-3"></div>
+    <div class="row justify-content-between">
+        <div class="col-md-6 col-lg-4">
+            <div class="input-group mb-3 ">
+                <input id="keyword-users" placeholder="Search Modules" [formControl]="searchControl" class="form-control form-control-rounded" type="text">
+                <span class="input-group-text position-absolute search-icon"><i class="i-Magnifi-Glass1"></i></span>
+            </div>
+        </div>
+        <div class="col-md-2 mb-4  " style="height: 4vh;">
+             <button (click)="openAddModuleModal()" class="btn btn-primary btn-rounded m-1 " ><i class="fa fa-add"></i> Add Module</button>
+         </div>
+     </div>
+     <div class="row">
+         <div class="col-md-12">
+             <div class="card o-hidden">
+                 <div *ngIf="loadingModules" class="d-flex justify-content-center align-items-center" style="height: 50vh;">
+                     <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                         <span class="spinner-glow spinner-glow-primary mr-5" style="font-size: 3rem;"></span>
+                     </div>
+                 </div>
+                 <div *ngIf="!loadingModules">
+                     <ngx-datatable
+                             style="height: calc(100vh - 270px); box-shadow: none"
+                             class="material fullscreen"
+                             [columnMode]="'force'"
+                             [columns]="[
+         { name: 'Name' },
+         { name: 'Description'},
+         { name: 'Courses', cellTemplate: coursesTemplate },
+         { name: 'Actions', prop: 'id', cellTemplate: deleteBtnTemplate, width: 250 }
+     ]"
+                             [headerHeight]="50"
+                             [footerHeight]="0"
+                             [rowHeight]="60"
+                             [scrollbarV]="true"
+                             [scrollbarH]="true"
+                             [count]="totalItems"
+                             [offset]="(currentPage - 1) * itemsPerPage"
+                             [limit]="itemsPerPage"
+                             [rows]="paginatedModules.modules | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage, totalItems: totalItems }">
+                     </ngx-datatable>
+                     <ng-template #coursesTemplate let-row="row" let-value="value">
+                         <button class="btn btn-link" (click)="viewCourses(row)">View Courses</button>
+                     </ng-template>
+                     <ng-template #deleteBtnTemplate let-row="row" let-value="value">
+                         <div class=" m-16">
+                            <button class="btn btn-warning btn-rounded  mr-2" (click)="openEditModuleModal(row)">
+                                 <i class="fa fa-edit"></i> Edit
+                             </button>
+                            <button class="btn btn-danger btn-rounded  mr-2" (click)="modalConfirmFunction(modalConfirmModuleDeletion, row)">
+                                <i class="fa fa-trash-can"></i> Delete
+                            </button>
+                        </div>
+                    </ng-template>
+                </div>
+                <pagination-controls (pageChange)="currentPage = $event"></pagination-controls>
+            </div>
+        </div>
+    </div>
+    <ng-template #modalConfirmModuleDeletion let-modal>
+        <div class="modal-header">
+            <h4 class="modal-title" id="modal-title-course-deletion">Module Deletion</h4>
+            <button type="button" class="close" aria-label="Close button" aria-describedby="modal-title" (click)="modal.dismiss('Cross click')">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p><strong>Are you sure you want to delete the module <span class="text-primary">{{ currentModule.name }}</span> from {{currentProgram.name}}?</strong></p>
+            <p>All information associated with this module will be permanently deleted from the program.
+                <span class="text-danger">This operation cannot be undone.</span>
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary btn-rounded" (click)="modal.dismiss('cancel')">Cancel</button>
+            <button type="button" ngbAutofocus class="btn btn-danger btn-rounded" (click)="modal.close('Ok')">Ok</button>
+        </div>
+    </ng-template>
+</div>

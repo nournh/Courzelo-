@@ -1,0 +1,25 @@
+<div class="modal-header">
+    <h5 class="modal-title">Update Skills for {{ teacher.name }} {{ teacher.lastname }}</h5>
+    <button type="button" class="close" aria-label="Close" (click)="closeUpdateSkillsModal()">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    <form [formGroup]="skillsForm" (ngSubmit)="updateSkills()">
+        <div class="form-row">
+            <div class="form-group col-md-12">
+                <label for="skills" class="form-label">Skills</label>
+                <tag-input id="skills"
+                           formControlName="skills"
+                           [modelAsStrings]="true"
+                           secondaryPlaceholder="Enter skills"
+                           placeholder="Add skill"
+                           [separatorKeyCodes]="[188]"
+                           [onlyFromAutocomplete]="false">
+                </tag-input>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Update Skills</button>
+    </form>
+
+</div>

@@ -1,0 +1,87 @@
+<div class="modal-content">
+    <!-- Modal Header -->
+    <div class="modal-header">
+        <h5 class="modal-title">My Grades</h5>
+        <button (click)="onClose()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="modal-body">
+        <!-- Loading Screen -->
+        <div *ngIf="loading" class="loadscreen mt-5 text-center">
+            <img src="../../../../assets/images/logo.png" class="logo mb-3" style="display: none" alt="Logo">
+            <div class="loader-bubble loader-bubble-primary d-block"></div>
+        </div>
+
+        <!-- Grades Content -->
+        <div *ngIf="!loading" class="row">
+            <!-- No Grades Found Message -->
+            <div class="col-12" *ngIf="!gradesResponse || gradesResponse.grades.length === 0">
+                <h5 class="text-center">No grades found</h5>
+            </div>
+
+            <!-- Average Score Section -->
+            <div *ngIf="gradesResponse?.grades?.length > 0" class="col-6 mb-4 text-center">
+                <h5>Your Average Score:
+                    <span>{{ gradesResponse.average | number:'1.2-2' }}</span>
+                </h5>
+            </div>
+            <div *ngIf="gradesResponse?.grades?.length > 0 && programResponse" class="col-6 mb-4 text-center">
+                <h5>Your Total credit:
+                    <span>{{ calculateStudentTotalCredits() | number:'1.0-0' }}/{{ programResponse.credits }}</span>
+                </h5>
+            </div>
+
+            <!-- Module Grades Cards -->
+            <div class="col-12">
+                <div class="row">
+                    <div class="col-6 mb-4" *ngFor="let module of gradesResponse.grades">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <!-- Module Name -->
+                                <h5 class="card-title text-center">{{ module.course.name || 'Module Name' }}</h5>
+
+                                <!-- Grades List -->
+                                <ul class="list-group">
+                                    <li class="list-group-item" *ngFor="let grade of module.grades">
+                                        <strong>{{ grade.name }}:</strong> {{ grade.grade }}
+                                    </li>
+                                </ul>
+
+                                <!-- Module Average Score and Status -->
+                                <div class="mt-3">
+                                    <p>Average Score:
+                                        <span [ngClass]="getScoreColorClass(module.average, module?.course?.scoreToPass)">
+                                            {{ module.average | number:'1.2-2' }}
+                                        </span>
+                                    </p>
+                                    <p [ngClass]="{
+                                        'text-success': module.average >= module?.course?.scoreToPass,
+                                        'text-danger': module.average < module?.course?.scoreToPass
+                                    }">
+                                        Status: {{ module.average >= module?.course?.scoreToPass ? 'Passed' : 'Not Passed' }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 mb-4">
+                <h5  class="flex-column text-info">
+                    Note:
+                    <span class="text-dark">
+      Only courses that have a score will be displayed.
+    </span>
+                </h5>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+        <button (click)="onClose()" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    </div>
+</div>

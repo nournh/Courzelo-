@@ -1,0 +1,49 @@
+<div class="container mt-4">
+    <h2>Edit User</h2>
+  
+    <form [formGroup]="editForm" (ngSubmit)="updateUser()" *ngIf="editForm && !isLoading">
+      
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input id="email" class="form-control" formControlName="email" readonly />
+      </div>
+  
+      <div class="form-group">
+        <label for="name">First Name</label>
+        <input id="name" class="form-control" formControlName="name" />
+      </div>
+  
+      <div class="form-group">
+        <label for="lastname">Last Name</label>
+        <input id="lastname" class="form-control" formControlName="lastname" />
+      </div>
+  
+    
+  
+      <div class="form-group">
+        <label for="country">Country</label>
+        <input id="country" class="form-control" formControlName="country" />
+      </div>
+  
+      <div class="form-group">
+        <label for="title">Title</label>
+        <input id="title" class="form-control" formControlName="title" />
+      </div>
+  
+      <div class="form-group">
+        <label for="bio">Bio</label>
+        <textarea id="bio" class="form-control" formControlName="bio"></textarea>
+      </div>
+  
+     
+  
+      <button type="submit" class="btn btn-success">Save</button>
+      <button type="button" class="btn btn-secondary" (click)="router.navigate(['/tools/users'])">Cancel</button>
+    </form>
+  
+    <!-- Show loading message -->
+    <div *ngIf="isLoading">
+      <p>Loading user data...</p>
+    </div>
+  </div>
+  

@@ -1,0 +1,41 @@
+<div class="modal-content ">
+
+<div class="modal-header">
+    <h5 class="modal-title">Assign Teacher</h5>
+    <button type="button" class="close" aria-label="Close" (click)="close.emit()">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+    <div class="modal-body">
+        <form [formGroup]="assignTeacherForm" (ngSubmit)="onSubmit()">
+            <div class="form-group">
+                <label for="assignOption">Assign Teacher By:</label>
+                <div>
+                    <input type="radio" id="selectTeacher" formControlName="assignOption" value="select" (change)="onOptionChange('select')" checked>
+                    <label for="selectTeacher">Select from qualified teachers list</label>
+                </div>
+                <div>
+                    <input type="radio" id="enterEmail" formControlName="assignOption" value="email" (change)="onOptionChange('email')">
+                    <label for="enterEmail">Enter email</label>
+                </div>
+            </div>
+            <div class="form-group" *ngIf="assignTeacherForm.get('assignOption').value === 'select'">
+                <label for="email">Email</label>
+                <select id="email" formControlName="email" class="form-control" aria-label="email">
+                    <option *ngFor="let teacher of teachers" title="{{teacher.skills.join(' | ')}}" [value]="teacher.email">
+                        {{ teacher.name }} {{ teacher.lastname }} - {{ teacher.email }}
+                    </option>
+                </select>
+            </div>
+            <div class="form-group" *ngIf="assignTeacherForm.get('assignOption').value === 'email'">
+                <label for="emailInput">Email</label>
+                <input id="emailInput" formControlName="email" class="form-control" aria-label="email" type="email">
+            </div>
+            <button type="submit" class="btn btn-primary" [disabled]="assignTeacherForm.invalid">Assign</button>
+        </form>
+    </div>
+
+<div class="modal-footer">
+    <button (click)="close.emit()" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+</div>
+</div>

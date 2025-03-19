@@ -1,0 +1,112 @@
+<div class="modal-content">
+    <div class="modal-header">
+        <h5 class="modal-title">{{ isEditMode ? 'Edit Assessment' : 'Assessments List' }}</h5>
+        <button (click)="onClose()" type="button" class="close" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <div class="modal-body">
+        <div *ngIf="loading" class="loadscreen mt-5">
+            <img src="assets/images/logo.png" class="logo mb-3" alt="">
+            <div class="loader-bubble loader-bubble-primary d-block"></div>
+        </div>
+
+        <!-- Assessment List or Add/Edit Form -->
+        <div *ngIf="!loading" class="row">
+                <!-- Display Assessments List -->
+            <ng-container *ngIf="!isEditMode && !isAddMode">
+                <ng-container *ngIf="courseResponse.assessments &&courseResponse.assessments.length > 0; else noAssessments">
+                    <div class="col-md-6 mb-4" *ngFor="let assessment of courseResponse.assessments">
+                        <div class="card h-100">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title text-primary">{{ assessment.name }}</h5>
+                                <p class="card-text text-muted">Weight: {{ assessment.weight }}%</p>
+
+                                <div class="mt-auto d-grid gap-2">
+                                    <!-- Edit Assessment Button -->
+                                    <button class="btn btn-warning mr-2" (click)="editAssessment(assessment)">
+                                        Edit Assessment
+                                    </button>
+
+                                    <!-- Delete Assessment Button -->
+                                    <button class="btn btn-danger mr-2" (click)="modalConfirmFunction(modalConfirmAssessmentDeletion,assessment)">
+                                        Delete Assessment
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div  class="col-12 mb-4">
+                        <h5 *ngIf="calculateAssessmentWeight()<100" class="flex-column text-warning">
+                            Warning:
+                            <span class="text-dark">
+                                The sum of all assessment weights is less than 100%.
+                    </span>
+                        </h5>
+                        <h5 *ngIf="calculateAssessmentWeight()>100" class="flex-column text-warning">
+                            Warning:
+                            <span class="text-dark">
+                                The sum of all assessment weights is greater than 100%.
+                    </span>
+                        </h5>
+                    </div>
+                </ng-container>
+                <ng-template #noAssessments>
+                    <div class="col-12 text-center">
+                        <p>No assessments found.</p>
+                    </div>
+                </ng-template>
+
+                <!-- Add New Assessment Button -->
+                <div class="col-12 text-center">
+                    <button class="btn btn-primary" (click)="addNewAssessment()">
+                        Add New Assessment
+                    </button>
+                </div>
+            </ng-container>
+
+            <!-- Add/Edit Assessment Form -->
+            <div *ngIf="isEditMode || isAddMode" class="col-12">
+                <form (ngSubmit)="onSubmitAssessment()">
+                    <div class="form-group">
+                        <label for="name">Assessment Name</label>
+                        <input type="text" id="name" [(ngModel)]="currentAssessment.name" name="name" class="form-control" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="weight">Weight (%)</label>
+                        <input type="number" id="weight" [(ngModel)]="currentAssessment.weight" name="weight" class="form-control" required />
+                    </div>
+
+                    <div class="form-group text-right">
+                        <button type="button" class="btn btn-secondary mr-2" (click)="cancelEdit()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">{{ isEditMode ? 'Update' : 'Add' }} Assessment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer" *ngIf="!isEditMode && !isAddMode">
+        <button (click)="onClose()" type="button" class="btn btn-secondary">Close</button>
+    </div>
+</div>
+<ng-template #modalConfirmAssessmentDeletion let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-title-assessment-deletion">Assessment Deletion</h4>
+        <button type="button" class="close" aria-label="Close button" aria-describedby="modal-title" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <p><strong>Are you sure you want to delete the assessment <span class="text-primary">{{ currentAssessment.name }}</span>?</strong></p>
+        <p>All information associated with this assessment will be permanently deleted.
+            <span class="text-danger">This operation cannot be undone.</span>
+        </p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary btn-rounded" (click)="modal.dismiss('cancel')">Cancel</button>
+        <button type="button" ngbAutofocus class="btn btn-danger btn-rounded" (click)="modal.close('Ok')">Ok</button>
+    </div>
+</ng-template>

@@ -1,0 +1,68 @@
+<ng-container *ngIf="group && timeTableSlots" >
+    <div class="timetable-container" >
+        <h1 class="text-center text-secondary">{{ groupKey }} Timetable</h1>
+        <h4 class="text-center text-secondary">{{timetableWeek | date:'longDate'}}</h4>
+        <div class="timetable text-white">
+    <div class="week-names">
+        <div>monday</div>
+        <div>tuesday</div>
+        <div>wednesday</div>
+        <div>thursday</div>
+        <div>friday</div>
+        <div >saturday</div>
+        <div >sunday</div>
+    </div>
+            <div class="time-interval">
+                <div *ngFor="let slot of timeTableSlots">{{ slot.startTime }} - {{ slot.endTime }}</div>
+            </div>
+            <div class="content" [ngStyle]="{'grid-template-rows': getGridTemplateRows()}">
+        <!-- Loop through each time slot (4 rows) -->
+        <ng-container *ngFor="let time of timeTableSlots; let timeIndex = index">
+        <!-- Loop through each day (7 columns) -->
+        <ng-container *ngFor="let day of daysOfWeek; let dayIndex = index">
+                <div *ngIf="hasTimeslot(day, {startTime: time.startTime, endTime: time.endTime})">
+                    <div [ngClass]="getTimeslotClass(day, {startTime: time.startTime, endTime: time.endTime})">
+                        <p class="text-center mt-2 course-name">{{ getTimeslotInfo(day, {startTime: time.startTime, endTime: time.endTime}).course }}</p>
+                        <p class="text-center mt-2 teacher-name">{{ getTimeslotInfo(day, {startTime: time.startTime, endTime: time.endTime}).teacher }}</p>
+                    </div>
+                </div>
+                <div *ngIf="!hasTimeslot(day, {startTime: time.startTime, endTime: time.endTime})"></div>
+            </ng-container>
+        </ng-container>
+    </div>
+</div>
+    </div>
+</ng-container>
+<ng-container *ngIf="teacher && timeTableSlots">
+    <h1 class="text-center text-secondary">{{ teacherKey }} Timetable</h1>
+    <h4 class="text-center text-secondary">{{timetableWeek | date:'longDate'}}</h4>
+    <div class="timetable text-white">
+        <div class="week-names">
+            <div>monday</div>
+            <div>tuesday</div>
+            <div>wednesday</div>
+            <div>thursday</div>
+            <div>friday</div>
+            <div>saturday</div>
+            <div>sunday</div>
+        </div>
+        <div class="time-interval">
+            <div *ngFor="let slot of timeTableSlots">{{ slot.startTime }} - {{ slot.endTime }}</div>
+        </div>
+        <div class="content" [ngStyle]="{'grid-template-rows': getGridTemplateRows()}">
+            <!-- Loop through each time slot (4 rows) -->
+            <ng-container *ngFor="let time of timeTableSlots; let timeIndex = index">
+                <!-- Loop through each day (7 columns) -->
+                <ng-container *ngFor="let day of daysOfWeek; let dayIndex = index">
+                    <div *ngIf="hasTimeslotTeacher(day, {startTime: time.startTime, endTime: time.endTime})">
+                        <div [ngClass]="getTimeslotClassTeacher(day, {startTime: time.startTime, endTime: time.endTime})">
+                            <p class="text-center mt-2 course-name">{{ getTimeslotInfoTeacher(day, {startTime: time.startTime, endTime: time.endTime}).course }}</p>
+                            <p class="text-center mt-2 teacher-name">{{ getTimeslotInfoTeacher(day, {startTime: time.startTime, endTime: time.endTime}).group }}</p>
+                        </div>
+                    </div>
+                    <div *ngIf="!hasTimeslotTeacher(day, {startTime: time.startTime, endTime: time.endTime})"></div>
+                </ng-container>
+            </ng-container>
+        </div>
+    </div>
+</ng-container>

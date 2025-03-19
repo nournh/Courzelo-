@@ -1,0 +1,24 @@
+<form [formGroup]="acceptForm" (ngSubmit)="onSubmit()" class="form-group">
+    <div class="form-group mb-3">
+      <label for="acceptedLimit">Accepted Limit</label>
+      <input type="number" id="acceptedLimit" class="form-control" formControlName="acceptedLimit" placeholder="Enter accepted limit">
+      <!-- Validation message for acceptedLimit -->
+      <div *ngIf="acceptForm.get('acceptedLimit').touched && acceptForm.get('acceptedLimit').invalid" class="text-danger">
+        <small *ngIf="acceptForm.get('acceptedLimit').hasError('required')">Accepted limit is required.</small>
+      </div>
+    </div>
+  
+    <div class="form-group mb-3">
+      <label for="waitingLimit">Waiting Limit</label>
+      <input type="number" id="waitingLimit" class="form-control" formControlName="waitingLimit" placeholder="Enter waiting limit">
+      <!-- Validation message for waitingLimit -->
+      <div *ngIf="acceptForm.get('waitingLimit').touched && acceptForm.get('waitingLimit').invalid" class="text-danger">
+        <small *ngIf="acceptForm.get('waitingLimit').hasError('required')">Waiting limit is required.</small>
+      </div>
+    </div>
+  
+
+  
+    <button type="submit" class="btn btn-primary" [disabled]="acceptForm.invalid">Submit</button>
+  </form>
+  

@@ -1,0 +1,82 @@
+<div class="modal-content">
+    <div class="modal-header">
+        <h5 class="modal-title">Student Grades</h5>
+        <button (click)="onClose()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div *ngIf="loading" class="loadscreen mt-5">
+            <img src="../../../../assets/images/logo.png" class="logo mb-3" style="display: none" alt="">
+            <div class="loader-bubble loader-bubble-primary d-block"></div>
+        </div>
+        <div *ngIf="!loading" class="row">
+            <!-- Loop through each student and display as a card -->
+            <div class="col-12" *ngIf="studentGrades.length === 0">
+                        <h5 class="flex-column align-items-center text-center">No students or assessments found</h5>
+            </div>
+            <div *ngIf="studentGrades.length > 0" class="col-12 mb-4">
+                <h5 class="flex-column align-items-center text-center">
+                    Class Average Score:
+                    <span [ngClass]="getScoreColorClass(calculateClassAverage(), courseResponse.scoreToPass)">
+                        {{ calculateClassAverage() | number:'1.2-2' }}
+                    </span>
+                </h5>
+            </div>
+            <div class="col-md-4 mb-4" *ngFor="let student of studentGrades">
+                <div class="card h-100">
+                    <div class="card-body d-flex flex-column align-items-center text-center">
+                        <!-- Center the image -->
+                        <img [src]="student.image || 'assets/default-image.jpg'" alt="{{ student.studentEmail }}" class="img-fluid rounded-circle mb-3" style="width: 50px; height: 50px;">
+                        <!-- Ensure email wraps if too long -->
+                        <p class="card-title text-break w-100">{{ student.studentEmail }}</p>
+                        <!-- Input fields for grades -->
+                        <div *ngFor="let assessment of courseResponse.assessments" class="position-relative">
+                            <label>
+                                {{ assessment.name }}:
+                            </label>
+                            <div class="input-group mb-2">
+                                <input type="number" [(ngModel)]="student.grades[assessment.name].score" class="form-control" placeholder="Enter grade" [disabled]="mode === 'teacher'">                                <div class="input-group-append">
+            <span *ngIf=" student.grades[assessment.name].validityFound && student.grades[assessment.name].valid" class="input-group-text text-success" data-toggle="tooltip" title="Valid" (click)="updateGradeValidity(student.grades[assessment.name].gradeID)">
+                <i class="fas fa-check"></i>
+            </span>
+                                    <span *ngIf="student.grades[assessment.name].validityFound && !student.grades[assessment.name].valid" class="input-group-text text-danger" data-toggle="tooltip" title="Verify, this might not be correct score" (click)="updateGradeValidity(student.grades[assessment.name].gradeID)">
+                <i class="fas fa-times"></i>
+            </span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Display average score and pass/fail status -->
+                        <p  class="mt-2">
+                            Average Score:
+                            <span [ngClass]="getScoreColorClass(calculateStudentAverage(student), courseResponse?.scoreToPass)">
+                                {{ calculateStudentAverage(student) | number:'1.2-2' }}
+                            </span>
+                        </p>
+                        <p  [ngClass]="{'text-success': calculateStudentAverage(student) >= courseResponse?.scoreToPass, 'text-danger': calculateStudentAverage(student) < courseResponse.scoreToPass}">
+                            Status: {{ calculateStudentAverage(student) >= courseResponse?.scoreToPass ? 'Passed' : 'Not Passed' }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 mb-4">
+                <h5 *ngIf="courseResponse?.scoreToPass && courseResponse?.scoreToPass != 0" class="flex-column text-info">
+                    Note:
+                    <span class="text-dark">
+      Students with an average score below {{ courseResponse?.scoreToPass }} will be marked as failed.
+    </span>
+                </h5>
+                <h5 *ngIf="!courseResponse?.scoreToPass || courseResponse?.scoreToPass == 0" class="flex-column text-warning">
+                    Warning:
+                    <span class="text-dark">
+      The score to pass is not set. Students will not be marked as failed.
+    </span>
+                </h5>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button *ngIf="mode == 'admin'" (click)="onSave()" type="button" class="btn btn-primary">Save</button>
+        <button (click)="onClose()" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    </div>
+</div>

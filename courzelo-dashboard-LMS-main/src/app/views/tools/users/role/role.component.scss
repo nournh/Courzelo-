@@ -1,0 +1,12 @@
+.role-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.role-tag {
+  padding: 5px;
+  font-size: 20px;
+  position: relative;
+  color: var(--primary-color); /* Primary color before hover */
+}

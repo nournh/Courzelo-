@@ -1,0 +1,163 @@
+<div *ngIf="!currentInstitution" class="loadscreen">
+    <img src="assets/images/logo.png" class="logo mb-3" style="display: none" alt="">
+    <div class="loader-bubble loader-bubble-primary d-block"></div>
+</div>
+<div *ngIf="currentInstitution" class="">
+    <div class="breadcrumb-container d-flex justify-content-between align-items-center">
+    <h1 >{{currentInstitution.name}}'s users</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Users List</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="separator-breadcrumb border-top mb-3"></div>
+    <div class="row mr-4 justify-content-between">
+        <div class="col-md-6 col-lg-4">
+            <div class="input-group mb-3 ">
+                <input id="keyword-users" placeholder="Search Users" [formControl]="searchControlUsers" class="form-control form-control-rounded pr-5" type="text">
+                <span class="input-group-text position-absolute search-icon"><i class="i-Magnifi-Glass1"></i></span>
+            </div>
+        </div>
+        <div class="col-md-2  " style="height: 4vh;">
+            <button (click)="addUserModel(addUser)" class="btn btn-primary btn-rounded m-1 " ><i class="fa fa-add"></i> Invite user</button>
+        </div>
+    </div>
+   <div class="row">
+    <div class="col-md-12">
+        <div class="card o-hidden">
+
+            <div *ngIf="loadingUsers" class="d-flex justify-content-center align-items-center" style="height: 50vh;">
+                <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="spinner-glow spinner-glow-primary mr-5" style="font-size: 3rem;"></span>
+                </div>
+            </div>
+            <div *ngIf="!loadingUsers">
+                <ngx-datatable
+                        style="height: calc(100vh - 270px); box-shadow: none"
+                        class="material fullscreen"
+                        [columnMode]="'force'"
+                        [columns]="[{ name: 'Email' }, { name: 'Name' }, { name: 'Lastname' }, { name: 'Roles', cellTemplate:roles , width: 200 },
+                                 { name: 'Skills', cellTemplate: skillsTemplate, width: 250 },
+{ name: 'Country' }, { name: 'Gender' },
+                                    { name: 'Edit', prop: 'id', cellTemplate: editBtnTemplate, width: 250 },{ name: 'Actions', prop: 'id', cellTemplate: deleteBtnTemplate, width: 400 }]"
+                        [headerHeight]="50"
+                        [footerHeight]="0"
+                        [rowHeight]="60"
+                        [scrollbarV]="true"
+                        [scrollbarH]="true"
+                        [count]="totalItemsUsers"
+                        [offset]="(currentPageUsers - 1) * itemsPerPageUsers"
+                        [limit]="itemsPerPageUsers"
+                        [rows]="users | paginate: { itemsPerPage: itemsPerPageUsers, currentPage: currentPageUsers, totalItems: totalItemsUsers }">
+                    <ng-template #roles let-row="row" let-value="value">
+                        <div class="role-tags">
+                            <div *ngFor="let role of row.roles">
+                                <app-role [role]="role"></app-role>
+                            </div>
+                        </div>
+                    </ng-template>
+                    <ng-template #skillsTemplate let-row="row">
+                        <div class="skill-container d-flex flex-wrap">
+    <span *ngFor="let skill of row.skills"
+          class="skill-badge badge badge-primary mb-2 mr-2"
+          [attr.title]="skill">{{ skill }}</span>
+                        </div>
+                    </ng-template>
+                    <ng-template #deleteBtnTemplate let-row="row" let-value="value">
+                        <button class="btn btn-primary ml-2" type="button" *ngIf="row.roles.includes('teacher')" (click)="openTeacherTimeslotsModal(row)"><i class="fas fa-clock"></i> Manage Timeslots</button>
+                        <button class="btn btn-primary ml-2" type="button" *ngIf="row.roles.includes('teacher')" (click)="openUpdateSkillsModal(row)"><i class="fas fa-pencil-alt"></i> Update Skills</button>
+                        <button class=" btn btn-danger btn-rounded m-1" (click)="modalConfirmUserFunction(modalConfirmUser,row)"><i class="i-Remove-User"></i> Remove</button>
+                    </ng-template>
+                    <ng-template #editBtnTemplate let-row="row" let-value="value">
+                        <form class="form-inline" (ngSubmit)="changeUserRole(row)">
+                            <div class="form-group mr-2">
+                                <select [(ngModel)]="selectedRole" class="form-control" name="role">
+                                    <option *ngFor="let role of availableRoles" [value]="role">{{ role }}</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-warning" type="submit"><i class="fas fa-user-edit"></i></button>
+                        </form>
+                    </ng-template>
+                </ngx-datatable>
+            </div>
+            <pagination-controls (pageChange)="currentPageUsers = $event"></pagination-controls>
+        </div>
+    </div>
+</div>
+    <ng-template #modalConfirmUser let-modal>
+        <div class="modal-header">
+            <h4 class="modal-title" id="modal-title-user">User removal</h4>
+            <button type="button" class="close" aria-label="Close button" aria-describedby="modal-title" (click)="modal.dismiss('Cross click')">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p><strong>Are you sure you want to remove <span class="text-primary">{{ currentUser.name }}</span> from {{currentInstitution.name}}?</strong></p>
+            <p>All information associated to this user will be permanently deleted from the institution.
+                <span class="text-danger">This operation cannot be undone.</span>
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary btn-rounded" (click)="modal.dismiss('cancel')">Cancel</button>
+            <button type="button" ngbAutofocus class="btn btn-danger btn-rounded" (click)="modal.close('Ok')">Ok</button>
+        </div>
+    </ng-template>
+    <ng-template #addUser let-modal>
+        <div class="modal-header">
+            <h4 class="modal-title" id="modal-basic-title-user">Invite user</h4>
+            <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form [formGroup]="addUserForm" (ngSubmit)="inviteUser()">
+                <div class="row">
+                    <div class="col-md-6 form-group mb-3">
+                        <label for="studentsEmails" class="form-label">Students Emails</label>
+                        <tag-input id="studentsEmails"
+                                   formControlName="studentsEmails"
+                                   (onSelect)="onSelect($event)"
+                                   [modelAsStrings]="true"
+                                   secondaryPlaceholder="Enter students emails"
+                                   placeholder="Add student email"
+                                   [separatorKeyCodes]="[32, 188]"
+                                   [addOnPaste]="true"
+                                   [pasteSplitPattern]="pasteSplitPattern"
+                                   [validators]="[emailValidator]"
+                                   [onlyFromAutocomplete]="false">
+                        </tag-input>
+                        <div class="invalid-feedback" *ngIf="shouldShowError('studentsEmails', 'required')">Students Emails are required</div>
+                    </div>
+
+                    <div class="col-md-6 form-group mb-3">
+                        <label for="role">Role</label>
+                        <select formControlName="role" class="form-control form-control" id="role">
+                            <option *ngFor="let role of roles" [value]="role">{{ role}}</option>
+                        </select>
+                        <div *ngIf="shouldShowError('role', 'required')" class="text-danger">
+                            Role is required.
+                        </div>
+                    </div>
+                    <div *ngIf="addUserForm.controls.role.value=='Teacher'" class="col-md-6 form-group mb-3">
+                        <label for="skills" class="form-label">Skills</label>
+                        <tag-input id="skills"
+                                   formControlName="skills"
+                                   [modelAsStrings]="true"
+                                   secondaryPlaceholder="Enter skills"
+                                   placeholder="Add skill"
+                                   [separatorKeyCodes]="[188]"
+                                   [onlyFromAutocomplete]="false">
+                        </tag-input>
+                        <div class="invalid-feedback" *ngIf="shouldShowError('studentsEmails', 'required')">Students Emails are required</div>
+                    </div>
+                    <div class="col-md-12">
+                        <btn-loading btnClass="btn-primary btn-rounded" [loading]="loadingUsers">Invite</btn-loading>
+
+                    </div>
+                </div>
+            </form>
+        </div>
+    </ng-template>
+</div>

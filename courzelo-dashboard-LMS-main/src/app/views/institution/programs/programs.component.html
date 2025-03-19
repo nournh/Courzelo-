@@ -1,0 +1,127 @@
+<div *ngIf="!currentInstitution" class="loadscreen">
+    <img src="assets/images/logo.png" class="logo mb-3" style="display: none" alt="">
+    <div class="loader-bubble loader-bubble-primary d-block"></div>
+</div>
+<div *ngIf="currentInstitution" class="">
+    <div class="breadcrumb-container d-flex justify-content-between align-items-center">
+        <h1 >{{currentInstitution.name}}'s programs</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Programs List</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="separator-breadcrumb border-top mb-3"></div>
+    <div class="row justify-content-between">
+        <div class="col-md-6 col-lg-4">
+            <div class="input-group mb-3 position-relative">
+                <input id="keyword-users" placeholder="Search Programs" [formControl]="searchControl" class="form-control form-control-rounded" type="text">
+                <span class="input-group-text position-absolute search-icon"><i class="i-Magnifi-Glass1"></i></span>
+            </div>
+        </div>
+        <div class="col-md-2  " style="height: 4vh;">
+            <button (click)="openAddProgramModal()" class="btn btn-primary btn-rounded m-1 " ><i class="fa fa-add"></i> Add Program</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card o-hidden">
+                <div *ngIf="loadingPrograms" class="d-flex justify-content-center align-items-center" style="height: 50vh;">
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="spinner-glow spinner-glow-primary mr-5" style="font-size: 3rem;"></span>
+                    </div>
+                </div>
+                <div *ngIf="!loadingPrograms">
+                    <ngx-datatable
+                            style="height: calc(100vh - 270px); box-shadow: none"
+                            class="material fullscreen"
+                            [columnMode]="'force'"
+                            [columns]="[
+        { name: 'Name' },
+        { name: 'Description'},
+        { name: 'Credits'},
+        { name: 'Duration'},
+        { name: 'Modules', cellTemplate: modulesTemplate },
+        { name: 'Actions', prop: 'id', cellTemplate: deleteBtnTemplate, width: 500 }
+    ]"
+                            [headerHeight]="50"
+                            [footerHeight]="0"
+                            [rowHeight]="80"
+                            [scrollbarV]="true"
+                            [scrollbarH]="true"
+                            [count]="totalItems"
+                            [offset]="(currentPage - 1) * itemsPerPage"
+                            [limit]="itemsPerPage"
+                            [rows]="paginatedPrograms.programs | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage, totalItems: totalItems }">
+                    </ngx-datatable>
+                    <ng-template #modulesTemplate let-row="row" let-value="value">
+                        <button class="btn btn-link" (click)="viewModules(row)">View Modules</button>
+                    </ng-template>
+                    <ng-template #coursesTemplate let-row="row" let-value="value">
+                        <button class="btn btn-link" (click)="viewCourses(row)">View Courses</button>
+                    </ng-template>
+                    <ng-template #deleteBtnTemplate let-row="row" let-value="value">
+                        <button class="btn btn-primary btn-rounded m-1 mr-2" (click)="openGenerateCalendarModal(row)">
+                            <i class="fa fa-add"></i> Generate Calendar
+                        </button>
+                        <button class="btn btn-primary btn-rounded m-1 mr-2" (click)="modalCreateCoursesFunction(modalCreateCourses,row)">
+                            <i class="fa fa-add"></i> Create Courses
+                        </button>
+                        <button class="btn btn-warning btn-rounded m-1 mr-2" (click)="openEditProgramModal(row)">
+                            <i class="fa fa-edit"></i> Edit
+                        </button>
+                        <button class="btn btn-danger btn-rounded m-1 mr-2" (click)="modalConfirmFunction(modalConfirmProgramDeletion, row)">
+                            <i class="fa fa-trash-can"></i> Delete
+                        </button>
+                    </ng-template>
+                </div>
+                <pagination-controls (pageChange)="currentPage = $event"></pagination-controls>
+            </div>
+        </div>
+    </div>
+    <ng-template #modalConfirmProgramDeletion let-modal>
+        <div class="modal-header">
+            <h4 class="modal-title" id="modal-title-program-deletion">Program Deletion</h4>
+            <button type="button" class="close" aria-label="Close button" aria-describedby="modal-title" (click)="modal.dismiss('Cross click')">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p><strong>Are you sure you want to delete the program <span class="text-primary">{{ currentProgram.name }}</span> and all its courses from {{currentInstitution.name}}?</strong></p>
+            <p>All information associated with this program and its courses will be permanently deleted from the institution.
+                <span class="text-danger">This operation cannot be undone.</span>
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary btn-rounded" (click)="modal.dismiss('cancel')">Cancel</button>
+            <button type="button" ngbAutofocus class="btn btn-danger btn-rounded" (click)="modal.close('Ok')">Ok</button>
+        </div>
+    </ng-template>
+    <ng-template #modalCreateCourses let-modal>
+        <div class="modal-header">
+            <h4 class="modal-title" id="modal-title-create-cours">Create Program Courses</h4>
+            <button type="button" class="close" aria-label="Close button" aria-describedby="modal-title" (click)="modal.dismiss('Cross click')">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div *ngIf="currentInstitution.secondSemesterStart &&currentInstitution.firstSemesterStart" class="modal-body">
+            <p><strong>Select the semester for which you want to create cours for the program <span class="text-primary">{{ currentProgram.name }}</span>:</strong></p>
+            <div class="form-group">
+                <button type="button" class="btn btn-primary btn-rounded m-1" (click)="createCourses('FIRST_SEMESTER'); modal.close('Ok')">First Semester</button>
+                <button type="button" class="btn btn-primary btn-rounded m-1" (click)="createCourses('SECOND_SEMESTER'); modal.close('Ok')">Second Semester</button>
+                <button type="button" class="btn btn-primary btn-rounded m-1" (click)="createCourses('BOTH'); modal.close('Ok')">Both Semesters</button>
+            </div>
+        </div>
+        <div *ngIf="!currentInstitution.secondSemesterStart && !currentInstitution.firstSemesterStart" class="modal-body">
+            <p><strong>Create cours for the program <span class="text-primary">{{ currentProgram.name }}</span>:</strong></p>
+            <div class="form-group">
+                <button type="button" class="btn btn-primary btn-rounded m-1" (click)="createCourses('BOTH'); modal.close('Ok')">Create Courses</button>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary btn-rounded" (click)="modal.dismiss('cancel')">Cancel</button>
+        </div>
+    </ng-template>
+</div>

@@ -1,0 +1,95 @@
+<div class="breadcrumb">
+    <h1>Profile Settings</h1>
+</div>
+
+<div class="separator-breadcrumb border-top mb-4"></div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Personal Information</h5>
+                <form (ngSubmit)="updateProfileInformation()" [formGroup]="informationForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="firstName">First Name</label>
+                            <input formControlName="name" type="text" class="form-control" id="firstName" placeholder="Enter your first name">
+                            <small *ngIf="informationForm.controls.name.errors?.required && informationForm.controls.name.touched" class="text-danger">First name is required.</small>
+                            <small *ngIf="informationForm.controls.name.errors?.minlength && informationForm.controls.name.touched" class="text-danger">First name must be at least 3 characters.</small>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="lastName">Last Name</label>
+                            <input formControlName="lastname" type="text" class="form-control" id="lastName" placeholder="Enter your last name">
+                            <small *ngIf="informationForm.controls.lastname.errors?.required && informationForm.controls.lastname.touched" class="text-danger">Last name is required.</small>
+                            <small *ngIf="informationForm.controls.lastname.errors?.minlength && informationForm.controls.lastname.touched" class="text-danger">Last name must be at least 3 characters.</small>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="title">Title</label>
+                            <input formControlName="title" type="text" class="form-control" id="title" placeholder="Enter your title">
+                            <small *ngIf="informationForm.controls.title.errors?.minlength && informationForm.controls.title.touched" class="text-danger">Title must be at least 3 characters.</small>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="bio">Bio</label>
+                            <textarea formControlName="bio" class="form-control" id="bio" rows="4" placeholder="Enter your bio"></textarea>
+                            <small *ngIf="informationForm.controls.bio.errors?.minlength && informationForm.controls.bio.touched" class="text-danger">Bio must be at least 20 characters.</small>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="birthDate">Birth Date</label>
+                            <div class="input-group">
+                                <input formControlName="birthDate" class="form-control" placeholder="yyyy-mm-dd" ngbDatepicker #dp="ngbDatepicker"
+                                       [(ngModel)]="birthDate" [maxDate]="maxDate" [minDate]="{year: 1900, month: 1, day: 1}">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-primary" type="button" (click)="dp.toggle()"><i class="icon-regular i-Calendar-4"></i></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="gender">Gender</label>
+                            <select formControlName="gender" class="form-control">
+                                <option value="" disabled>Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="country">Country</label>
+                            <select formControlName="country" class="form-control">
+                                <option value="" disabled>Select Country</option>
+                                <option *ngFor="let country of countries" [value]="country.country">{{ country.country }}</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 text-center mt-3">
+                            <btn-loading btnClass="btn-primary btn-rounded" [loading]="loading">Submit</btn-loading>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Profile Image Upload Section -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Profile Image</h5>
+                <div *ngIf="selectedFileUrl" class="text-center mb-3">
+                    <img [src]="selectedFileUrl" alt="Profile Image" class="rounded-circle img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;">
+                </div>
+                <div class="input-group">
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="inputGroupFile02" (change)="onFileSelected($event)">
+                        <label class="custom-file-label" for="inputGroupFile02">{{ selectedFileName || 'Choose file' }}</label>
+                    </div>
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-primary" (click)="uploadProfilePicture()">Upload</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

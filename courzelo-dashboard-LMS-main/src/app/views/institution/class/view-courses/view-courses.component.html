@@ -1,0 +1,114 @@
+<div class="modal-content">
+    <div class="modal-header">
+        <h5 class="modal-title">Courses List</h5>
+        <button (click)="onClose()" type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div *ngIf="loading" class="loadscreen mt-5 text-center">
+            <img src="assets/images/logo.png" class="logo mb-3" style="display: none" alt="Loading">
+            <div class="loader-bubble loader-bubble-primary d-block"></div>
+        </div>
+        <div *ngIf="!loading">
+            <div *ngIf="modules.length === 0" class="text-center">
+                <p class="text-muted">No modules available.</p>
+            </div>
+            <div *ngIf="modules.length > 0" class="row">
+                <!-- Loop through each module and display as a card -->
+                <div class="col-md-12 mb-4" *ngFor="let module of modules">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0 text-primary">{{ module.name }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <div *ngIf="module.courses.length > 0; else noCourses" class="row g-3">
+                                <div class="col-md-6 col-lg-4" *ngFor="let course of module.courses">
+                                    <div class="border rounded p-3 h-100">
+                                        <h6 class="text-primary">{{ course.name }}</h6>
+                                        <p *ngIf="course.classroomCreated" class="mb-1">
+                                            <strong>Teacher:</strong>
+                                            <span [ngClass]="{'text-danger': !course.classroomTeacher}">
+                                            {{ course.classroomTeacher || "Not assigned" }}
+                                        </span>
+                                        </p>
+                                        <p class="mb-3">
+                                            <strong>Credits:</strong> {{ course.credit }}
+                                        </p>
+                                        <div class="d-grid gap-2">
+                                            <!-- View Course Button -->
+                                            <button
+                                                    class="btn btn-sm btn-outline-primary mr-2 mb-2"
+                                                    *ngIf="course.classroomCreated"
+                                                    (click)="onClose()"
+                                                    routerLink="institution/classroom/{{ course.classroomID }}">
+                                                View Course
+                                            </button>
+
+                                            <!-- Create Course Button -->
+                                            <button
+                                                    class="btn btn-sm btn-outline-primary mr-2 mb-2"
+                                                    *ngIf="!course.classroomCreated"
+                                                    (click)="createClassroom(course)">
+                                                Create Course
+                                            </button>
+
+                                            <!-- Students Grades Button -->
+                                            <button
+                                                    class="btn btn-sm btn-outline-info mr-2 mb-2"
+                                                    *ngIf="course.classroomCreated"
+                                                    (click)="openStudentsGradesModal(course)">
+                                                Students Grades
+                                            </button>
+
+                                            <!-- Set Teacher Button -->
+                                            <button
+                                                    class="btn btn-sm btn-outline-warning mr-2 mb-2"
+                                                    *ngIf="course.classroomCreated"
+                                                    (click)="openAsssignTeacherModal(course)">
+                                                Set Teacher
+                                            </button>
+
+                                            <!-- Delete Course Button -->
+                                            <button
+                                                    class="btn btn-sm btn-outline-danger mr-2 mb-2"
+                                                    *ngIf="course.classroomCreated"
+                                                    (click)="openDeleteCourseModal(course, modalConfirmCourse)">
+                                                Delete Course
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <ng-template #noCourses>
+                                <p class="text-muted">No courses available for this module.</p>
+                            </ng-template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <ng-template #modalConfirmCourse let-modal>
+        <div class="modal-header">
+            <h4 class="modal-title" id="modal-title-classRoom">Classroom Deletion</h4>
+            <button type="button" class="close" aria-label="Close button" aria-describedby="modal-title" (click)="modal.dismiss('Cross click')">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p><strong>Are you sure you want to delete the classRoom <span class="text-primary">{{ currentCourse.name }}</span>?</strong></p>
+            <p>All information associated with this classRoom will be permanently deleted.
+                <span class="text-danger">This operation cannot be undone.</span>
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary btn-rounded" (click)="modal.dismiss('cancel')">Cancel</button>
+            <button type="button" ngbAutofocus class="btn btn-danger btn-rounded" (click)="modal.close('Ok')">Delete</button>
+        </div>
+    </ng-template>
+    <div class="modal-footer">
+        <button (click)="onClose()" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    </div>
+</div>

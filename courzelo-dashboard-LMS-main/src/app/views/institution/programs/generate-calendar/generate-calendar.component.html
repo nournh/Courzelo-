@@ -1,0 +1,55 @@
+<div class="modal-header">
+    <h5 class="modal-title">Generate {{programResponse.name}} Calendar</h5>
+    <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    <form [formGroup]="generateForm" (ngSubmit)="generateExcel()">
+        <div class="form-group mb-3">
+            <label for="startDatePicker" class="form-label">Start Date</label>
+            <div class="input-group">
+                <input type="text" formControlName="startDate" id="startDatePicker" class="form-control" placeholder="yyyy-mm-dd" ngbDatepicker #dp2="ngbDatepicker">
+                <button class="btn btn-secondary" type="button" (click)="dp2.toggle()"><i class="i-Calendar-4"></i></button>
+            </div>
+            <small *ngIf="generateForm.controls['startDate'].invalid && generateForm.controls['startDate'].touched" class="text-danger">Start Date is required.</small>
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="finishDatePicker" class="form-label">Finish Date</label>
+            <div class="input-group">
+                <input type="text" formControlName="finishDate" id="finishDatePicker" class="form-control" placeholder="yyyy-mm-dd" ngbDatepicker #dp="ngbDatepicker">
+                <button class="btn btn-secondary" type="button" (click)="dp.toggle()"><i class="i-Calendar-4"></i></button>
+            </div>
+            <small *ngIf="generateForm.controls['finishDate'].invalid && generateForm.controls['finishDate'].touched" class="text-danger">Finish Date is required.</small>
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="calendarName" class="form-label">Calendar Name</label>
+            <input type="text" formControlName="name" id="calendarName" class="form-control" placeholder="Enter calendar name">
+            <small *ngIf="generateForm.controls['name'].invalid && generateForm.controls['name'].touched" class="text-danger">Name is required and must be under 15 characters.</small>
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="calendarColor" class="form-label">Color</label>
+            <input type="color" formControlName="color" id="calendarColor" class="form-control">
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary">Generate Calendar</button>
+            <button type="button" class="btn btn-success" (click)="addEvent()">Add Event</button>
+            <button type="button" class="btn btn-info" *ngIf="programResponse.hasCalendar" (click)="downloadExcel()">Download Calendar</button>
+        </div>
+    </form>
+</div>
+
+<!-- Events Section -->
+<div class="modal-body" *ngIf="generationEventList.length > 0">
+    <h4 class="card-title">Generated Events</h4>
+    <ul class="list-group">
+        <li *ngFor="let event of generationEventList; let i = index" class="list-group-item d-flex justify-content-between align-items-center">
+            {{ event.name }} <span>{{ event.startDate | date: 'mediumDate' }} - {{ event.finishDate | date: 'mediumDate' }}</span>
+            <button type="button" class="btn btn-danger btn-sm" (click)="deleteEvent(i)">Delete</button>
+        </li>
+    </ul>
+</div>

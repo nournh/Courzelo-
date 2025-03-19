@@ -1,0 +1,68 @@
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+<div *ngIf="!currentInstitution" class="loadscreen">
+    <img src="assets/images/logo.png" class="logo mb-3" style="display: none" alt="">
+    <div class="loader-bubble loader-bubble-primary d-block"></div>
+</div>
+<div *ngIf="currentInstitution"  class="card user-profile o-hidden mb-4">
+    <div class="header-cover" style="background-image: url('assets/images/photo-wide-4.jpg')"></div>
+    <div class="user-info">
+        <img class="profile-picture avatar-lg mb-2" [src]="imageSrc || 'assets/default-university-image.jpg' " alt="">
+        <p class="m-0 text-24">{{currentInstitution?.name}} </p>
+        <p class="text-muted m-0">{{currentInstitution?.slogan||""}}</p>
+    </div>
+    <div class="card-body">
+        <ul ngbNav #nav="ngbNav" class="nav nav-tabs nav-center" (navChange)="onTabChange($event)">
+            <li [ngbNavItem]="1" class="nav-item">
+                <a ngbNavLink class="nav-link">About</a>
+                <ng-template ngbNavContent>
+                    <h4>Information</h4>
+                    <p>{{ currentInstitution?.description || "No description available" }}</p>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-4 col-6" *ngIf="currentInstitution?.country">
+                            <p class="text-primary mb-1">
+                                <i class="i-Globe text-16 mr-1"></i> Country
+                            </p>
+                            <span>{{ currentInstitution?.country }}</span>
+                        </div>
+                        <div class="col-md-4 col-6" *ngIf="currentInstitution?.address">
+                            <p class="text-primary mb-1">
+                                <i class="i-University1 text-16 mr-1"></i> Address
+                            </p>
+                            <span>{{ currentInstitution?.address }}</span>
+                        </div>
+                        <div class="col-md-4 col-6" *ngIf="currentInstitution?.website">
+                            <p class="text-primary mb-1">
+                                <i class="i-Cloud-Weather text-16 mr-1"></i> Website
+                            </p>
+                            <a href="{{currentInstitution?.website}}" target="_blank">{{currentInstitution?.website}}</a>
+                        </div>
+                    </div>
+                </ng-template>
+            </li>
+
+            <li [ngbNavItem]="2" class="nav-item" id="mapTab">
+                <a ngbNavLink class="nav-link">Map</a>
+                <ng-template ngbNavContent>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div id="map"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ng-template>
+            </li>
+        </ul>
+        <div [ngbNavOutlet]="nav"></div>
+    </div>
+
+
+</div>

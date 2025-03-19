@@ -1,0 +1,29 @@
+<div class="container mt-4">
+    <div class="text-center mb-4">
+      <button type="button" class="btn btn-primary btn-rounded" (click)="createInterviews()">Affecte</button>
+      <button type="button" class="btn btn-primary btn-rounded" [disabled]="" (click)="update()">Accepting</button>
+    </div>
+  
+    <p class="section-title text-center mb-3">Application Details</p>
+  
+    <div *ngIf="list && list.length > 0; else noApplications">
+      <ul class="list-group">
+        <li *ngFor="let item of list | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage, totalItems: totalItems }" class="list-group-item">
+          <div class="profile-info">
+            <p class="info"><strong>Name:</strong> {{ item.name }}</p>
+            <p class="info"><strong>Last Name:</strong> {{ item.lastname }}</p>
+            <p class="info mb-1"><strong>Email:</strong> {{ item.email }}</p>
+            <p class="info"><strong>Note:</strong> {{ item.note }}</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  
+    <!--<pagination-controls (pageChange)="onPageChange($event)" [totalItems]="totalItems" [itemsPerPage]="itemsPerPage" 
+    [currentPage]="currentPage"></pagination-controls>-->
+  
+    <ng-template #noApplications>
+      <h2 class="text-center">No Applications Yet</h2>
+    </ng-template>
+  </div>
+  

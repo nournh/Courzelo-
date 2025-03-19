@@ -1,0 +1,66 @@
+<div class="modal-header">
+    <h5 class="modal-title">Edit Course</h5>
+    <button type="button" class="close" aria-label="Close" (click)="courseUpdated.emit()">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    <form [formGroup]="editCourseForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input id="name" formControlName="name" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" formControlName="description" class="form-control"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="skills" class="form-label">Skills</label>
+            <tag-input id="skills"
+                       formControlName="skills"
+                       [modelAsStrings]="true"
+                       secondaryPlaceholder="Enter skills"
+                       placeholder="Add skill"
+                       [separatorKeyCodes]="[188]"
+                       [onlyFromAutocomplete]="false">
+            </tag-input>
+        </div>
+        <div class="form-group">
+            <label for="duration">Duration</label>
+            <input id="duration" formControlName="duration" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="credit">Credit</label>
+            <input id="credit" formControlName="credit" type="number" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="score">Score to pass</label>
+            <input id="score" formControlName="scoreToPass" type="number" class="form-control" />
+        </div>
+        <div *ngIf="institution.firstSemesterStart && institution.secondSemesterStart" class="form-group">
+            <label for="semester">Semester</label>
+            <select id="semester" formControlName="semester" class="form-control">
+                <option value="FIRST_SEMESTER">First Semester</option>
+                <option value="SECOND_SEMESTER">Second Semester</option>
+            </select>
+        </div>
+        <div class="form-group" formArrayName="moduleParts">
+            <div *ngFor="let part of courseParts.controls; let i = index" [formGroupName]="i">
+                <label for="partName-{{i}}">Course Part Name</label>
+                <input id="partName-{{i}}" formControlName="name" class="form-control" placeholder="e.g., TP" />
+
+                <label for="partValue-{{i}}">Hours</label>
+                <input id="partValue-{{i}}" formControlName="value" type="number" class="form-control" placeholder="e.g., 5" />
+
+                <button type="button" class="btn btn-danger mt-2 md-2" (click)="removeCoursePart(i)">Remove</button>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-secondary md-2" (click)="addCoursePart()">Add Course Part</button>
+        <div class="form-group">
+            <label for="isFinished">Is Finished</label>
+            <input id="isFinished" type="checkbox" formControlName="isFinished" class="form-check-input ml-2" />
+        </div>
+        <button type="submit" class="btn btn-primary" [disabled]="editCourseForm.invalid">Save Changes</button>
+    </form>
+</div>

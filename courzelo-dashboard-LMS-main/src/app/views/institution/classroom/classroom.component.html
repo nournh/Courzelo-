@@ -1,0 +1,444 @@
+<div *ngIf="!classRoom" class="loadscreen">
+    <img src="assets/images/logo.png" class="logo mb-3" style="display: none" alt="">
+    <div class="loader-bubble loader-bubble-primary d-block"></div>
+</div>
+<div *ngIf="classRoom" class="container-fluid rounded bg-primary  p-4">
+    <div class="row">
+        <div  class="col-lg-6">
+            <h1 class=" text-white display-4">{{this.classRoom.name || "Classroom name" }}</h1>
+            <p class=" text-white lead">{{this.classRoom.description || "Classroom description" }}</p>
+            <p class="text-white">Credits: {{this.classRoom.credit || 0}}</p>
+        </div>
+        <div class="col">
+            <div class="row mt-5">
+                <div class="col-lg-8 user-profile mb-4">
+                    <div class="user-info">
+                        <img class="profile-picture avatar-lg mb-2" [src]="imageSrc || 'assets/default-image.jpg' " alt="">
+                        <h1 class="m-0 text-white" >{{this.classRoom.teacher ||"Classroom teacher"}}</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Buttons Section -->
+<div *ngIf="classRoom" class="container mt-3">
+    <div class="d-flex justify-content-end mb-3">
+        <button class="btn btn-success btn-rounded mr-2" *ngIf="isUserTeacherInClassroom()" (click)="addPostModel(ModalAddPost)"  ><i class="i-Add"></i> Add Post</button>
+        <button class="btn btn-success btn-rounded mr-2" *ngIf="isUserTeacherInClassroom()" (click)="addQuizModel(ModalAddQuiz)"  ><i class="i-Add"></i> Add Quiz</button>
+        <button class="btn btn-warning btn-rounded mr-2" (click)="updateClassroomModel(ModalUpdateClassroom)"  *ngIf="isUserTeacherInClassroom()" ><i class="i-Pen-2"></i> Edit Classroom</button>
+        <button class="btn btn-danger btn-rounded mr-2" *ngIf="isUserTeacherInClassroom()" (click)="deleteClassroom(modalConfirmClassroom)"><i class="i-Remove"></i> Delete Classroom</button>
+    </div>
+</div>
+<!-- Main Content Section -->
+<div *ngIf="classRoom" class="container mt-3">
+    <div class="row">
+        <!-- Left Sidebar -->
+        <div class="col-md-2">
+            <!-- Placeholder for future content -->
+        </div>
+
+        <!-- Posts Section -->
+        <div *ngIf="(classRoom.posts && classRoom.posts.length > 0) || (classRoom.quizzes && classRoom.quizzes.length > 0)" class="col-md-8">
+            <div *ngFor="let post of classRoom.posts" class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">{{ post.title }}</h5>
+                    <small><i class="i-Clock"></i> {{ post.created | date: 'dd/MM/yyyy HH:mm' }}</small>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">{{ post.description }}</p>
+                    <div *ngIf="post.files && post.files.length > 0">
+                        <a *ngFor="let file of post.files" (click)="downloadFile(file)" class="btn btn-link"><i class="i-Download"></i> {{ file }}</a>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-danger btn-rounded" *ngIf="isUserTeacherInClassroom()" (click)="deletePostModal(modalConfirmDeletePost, post.id)"><i class="i-Remove"></i> Delete Post</button>
+                </div>
+            </div>
+            <div *ngFor="let quiz of classRoom.quizzes" class="card mb-3">
+                <div *ngIf="!(quiz.showSummary || quiz.showSimplifiedSummary)">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{{ quiz.title }}</h5>
+                        <small><i class="i-Clock"></i> {{ quiz.createdAt | date: 'dd/MM/yyyy HH:mm' }}</small>
+                    </div>
+                    <div class="card-body" *ngIf="quiz.quizStarted">
+                        <p class="card-text">{{ quiz.description }}</p>
+                        <p class="card-text">Duration: {{ quiz.duration }} minutes</p>
+                        <p class="card-text">Time Remaining: {{ quiz.timeRemaining | timeRemaining }}</p>
+                        <div *ngFor="let question of quiz.questions; let i = index" class="mb-4">
+                            <div class="mb-3">
+                                <h5 class="mb-2">{{ i + 1 }}. {{ question.text }}</h5>
+                                <div *ngIf="question.type === 'MULTIPLE_CHOICE'" class="form-check">
+                                    <div *ngFor="let option of question.options; let j = index">
+                                        <input class="form-check-input" type="radio"
+                                               [id]="'option' + question.id + '_' + j"
+                                               [value]="option"
+                                               [multiple]="false"
+                                               [(ngModel)]="question.answer"
+                                               [checked]="question.answer?.includes(option)">
+                                        <label class="form-check-label"
+                                               [for]="'option' + question.id + '_' + j">{{ option }}</label>
+                                    </div>
+                                </div>
+                                <div *ngIf="question.type === 'SHORT_ANSWER'">
+                                    <input type="text" class="form-control"
+                                           [(ngModel)]="question.answer">
+                                </div>
+                                <div *ngIf="question.type === 'LONG_ANSWER'">
+            <textarea class="form-control" rows="4"
+                      [(ngModel)]="question.answer"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button *ngIf="canStartQuiz(quiz)" class="btn btn-primary btn-rounded mr-2" (click)="startQuiz(quiz)">Start Quiz</button>
+                        <button *ngIf="quiz.quizStarted" class="btn btn-success btn-rounded mr-2" (click)="submitQuiz(quiz)">Submit Quiz</button>
+                        <button class="btn btn-danger btn-rounded mr-2" *ngIf="isUserTeacherInClassroom()" (click)="deleteQuizModal(modalConfirmDeleteQuiz, quiz.id)"><i class="i-Remove"></i> Delete Quiz</button>
+                        <button class="btn btn-primary btn-rounded mr-2" *ngIf="isUserTeacherInClassroom()" (click)="quizSubmissionsModal(modalShowSubmissions, quiz)"><i class="i-Book"></i> Show submissions</button>
+                    </div>
+                </div>
+                <div *ngIf="quiz.showSummary" class="card">
+                        <div class="card-header text-white text-center">
+                            <h4 class="card-title mb-0">Quiz Summary</h4>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="mb-3 text-center font-weight-bold">{{ quiz.title }}</h5>
+
+                            <!-- Loop through questions and display them -->
+                            <div *ngFor="let question of quiz.questions; let i = index" class="mb-4">
+                                <p><strong>{{ i + 1 }}. {{ question.text }} ({{ question.points }} points)</strong></p>
+
+                                <!-- Your answer with color coding based on correctness -->
+                                <p [ngClass]="{'text-danger': question.answer !== question.correctAnswer, 'text-success': question.answer === question.correctAnswer}">
+                                    Your Answer: {{ question.answer }}
+                                </p>
+
+                                <!-- Display correct answer -->
+                                <p class="text-muted">Correct Answer: {{ question.correctAnswer }}</p>
+
+                                <!-- Optional: Divider to separate questions visually -->
+                                <hr class="my-3">
+                            </div>
+                        </div>
+                        <div class="card-footer text-center">
+                            <p class="lead">Your final score:
+                                <span class="font-weight-bold text-success">{{ quiz.finalScore }}</span> /
+                                <span class="text-muted">{{ quiz.maxScore }}</span>
+                            </p>
+                        </div>
+                </div>
+                <div *ngIf="quiz.showSimplifiedSummary" class="card">
+                        <div class="card-header  text-white text-center">
+                            <h4 class="card-title mb-0">🎉 Quiz Summary 🎉</h4>
+                        </div>
+                        <div class="card-body text-center">
+                            <h5 class="mb-3 font-weight-bold">{{ quiz.title }}</h5>
+
+                            <!-- Progress Bar to show the score visually -->
+                            <div class="progress mb-4" style="height: 20px;">
+                                <div
+                                        class="progress-bar bg-success"
+                                        role="progressbar"
+                                        [style.width]="(quiz.finalScore / quiz.maxScore) * 100 + '%'"
+                                        aria-valuenow="{{ quiz.finalScore }}"
+                                        aria-valuemin="0"
+                                        aria-valuemax="{{ quiz.maxScore }}">
+                                </div>
+                            </div>
+
+                            <p class="lead">Your final score:
+                                <span class="font-weight-bold text-success">{{ quiz.finalScore }}</span> /
+                                <span class="text-muted">{{ quiz.maxScore }}</span>
+                            </p>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-warning btn-rounded mr-2" *ngIf="isUserTeacherInClassroom()" (click)="resetQuiz(quiz)"><i class="i-Reload"></i> reset Quiz</button>
+                            <button class="btn btn-danger btn-rounded mr-2" *ngIf="isUserTeacherInClassroom()" (click)="deleteQuizModal(modalConfirmDeleteQuiz, quiz.id)"><i class="i-Remove"></i> Delete Quiz</button>
+                            <button class="btn btn-primary btn-rounded mr-2" *ngIf="isUserTeacherInClassroom()" (click)="quizSubmissionsModal(modalShowSubmissions, quiz)"><i class="i-Book"></i> Show submissions</button>
+
+                        </div>
+                </div>
+            </div>
+        </div>
+        <ng-template *ngIf="classRoom.quizzes || classRoom.posts" #noPosts>
+            <div class="col-md-8">
+                <p>No posts available.</p>
+            </div>
+        </ng-template>
+
+        <!-- Right Sidebar -->
+        <div class="col-md-2">
+            <!-- Placeholder for future content -->
+        </div>
+    </div>
+</div>
+    <ng-template #modalConfirmClassroom let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-title-classRoom">Classroom Deletion</h4>
+        <button type="button" class="close" aria-label="Close button" aria-describedby="modal-title" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <p><strong>Are you sure you want to delete the classRoom <span class="text-primary">{{ classRoom.name }}</span>?</strong></p>
+        <p>All information associated with this classRoom will be permanently deleted.
+            <span class="text-danger">This operation cannot be undone.</span>
+        </p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary btn-rounded" (click)="modal.dismiss('cancel')">Cancel</button>
+        <button type="button" ngbAutofocus class="btn btn-danger btn-rounded" (click)="modal.close('Ok')">Ok</button>
+    </div>
+    </ng-template>
+<ng-template #modalConfirmDeletePost let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-title-post-delete">Delete Post</h4>
+        <button type="button" class="close" aria-label="Close button" aria-describedby="modal-title" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <p><strong>Are you sure you want to delete this post ?</strong></p>
+        <p>All information associated with this post will be permanently deleted.
+            <span class="text-danger">This operation cannot be undone.</span>
+        </p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary btn-rounded" (click)="modal.dismiss('cancel')">Cancel</button>
+        <button type="button" ngbAutofocus class="btn btn-danger btn-rounded" (click)="modal.close('Ok')">Ok</button>
+    </div>
+</ng-template>
+<ng-template #modalConfirmDeleteQuiz let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-title-quiz-delete">Delete Quiz</h4>
+        <button type="button" class="close" aria-label="Close button" aria-describedby="modal-title" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <p><strong>Are you sure you want to delete this quiz?</strong></p>
+        <p>All information associated with this quiz will be permanently deleted.
+            <span class="text-danger">This operation cannot be undone.</span>
+        </p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary btn-rounded" (click)="modal.dismiss('cancel')">Cancel</button>
+        <button type="button" ngbAutofocus class="btn btn-danger btn-rounded" (click)="modal.close('Ok')">Ok</button>
+    </div>
+</ng-template>
+<ng-template #modalShowSubmissions let-modal>
+    <div class="modal-header  text-white">
+        <h4 class="modal-title" id="modal-title-show-submissions">Student Submissions</h4>
+        <button type="button" class="close text-white" aria-label="Close button" aria-describedby="modal-title" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <p><strong>Quiz: {{ selectedQuiz.title }}</strong></p>
+
+        <!-- Conditionally display submissions or no-submissions message -->
+        <div *ngIf="selectedQuiz.studentSubmissions && selectedQuiz.studentSubmissions.length > 0">
+            <table class="table table-striped table-hover table-bordered">
+                <thead class="thead-light">
+                <tr>
+                    <th>Email</th>
+                    <th>Score</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let submission of selectedQuiz.studentSubmissions">
+                    <td>{{ submission.studentId }}</td>
+                    <td>{{ submission.score }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div *ngIf="!selectedQuiz.studentSubmissions || selectedQuiz.studentSubmissions.length === 0">
+            <div class="alert alert-warning text-center" role="alert">
+                No submissions available.
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary btn-rounded" (click)="modal.dismiss('cancel')">Close</button>
+    </div>
+</ng-template>
+
+<ng-template #ModalUpdateClassroom let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title-user">Update Classroom</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form [formGroup]="updateClassroomForm" (ngSubmit)="updateClassroom()">
+            <div class="row">
+                <div class="col-md-6 form-group mb-3">
+                    <label for="name">Name</label>
+                    <input type="text" formControlName="name" class="form-control" id="name" placeholder="Classroom name">
+                    <div *ngIf="shouldShowErrorUpdateClassroom('name', 'required')" class="text-danger">
+                        Name is required.
+                    </div>
+                    <div *ngIf="shouldShowErrorUpdateClassroom('name', 'maxlength')" class="text-danger">
+                        Name must be less than 50 characters.
+                    </div>
+                    <div *ngIf="shouldShowErrorUpdateClassroom('name', 'minlength')" class="text-danger">
+                        Name must be more than 3 characters.
+                    </div>
+                </div>
+
+                <div class="col-md-6 form-group mb-3">
+                    <label for="description">description</label>
+                    <textarea type="text" formControlName="description" class="form-control" id="description" placeholder="Classroom description"></textarea>
+                    <div *ngIf="shouldShowErrorUpdateClassroom('description', 'required')" class="text-danger">
+                        Description is required.
+                    </div>
+                    <div *ngIf="shouldShowErrorUpdateClassroom('description', 'maxlength')" class="text-danger">
+                        Description must be less than 100 characters.
+                    </div>
+                    <div *ngIf="shouldShowErrorUpdateClassroom('description', 'minlength')" class="text-danger">
+                        Description must be more than 3 characters.
+                    </div>
+                </div>
+                <div class="col-md-6 form-group mb-3">
+                    <label for="credit">credit</label>
+                    <input type="number" formControlName="credit" class="form-control" id="credit" placeholder="Classroom credit">
+                    <div *ngIf="shouldShowErrorUpdateClassroom('credit', 'required')" class="text-danger">
+                        Credit is required.
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <btn-loading btnClass="btn-warning btn-rounded" [loading]="loading">update</btn-loading>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>
+<ng-template #ModalAddPost let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title-post">Add Post</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form [formGroup]="addPostForm" (ngSubmit)="addPost()">
+            <div class="row">
+                <div class="col-md-6 form-group mb-3">
+                    <label for="title">Title</label>
+                    <input type="text" formControlName="title" class="form-control" id="title" placeholder="Post title">
+                    <div *ngIf="shouldShowErrorAddPost('title', 'required')" class="text-danger">
+                        Title is required.
+                    </div>
+                    <div *ngIf="shouldShowErrorAddPost('title', 'maxlength')" class="text-danger">
+                        Title must be less than 50 characters.
+                    </div>
+                    <div *ngIf="shouldShowErrorAddPost('title', 'minlength')" class="text-danger">
+                        Title must be more than 3 characters.
+                    </div>
+                </div>
+
+                <div class="col-md-6 form-group mb-3">
+                    <label for="description">Description</label>
+                    <textarea type="text" formControlName="description" class="form-control" id="descriptionPost" placeholder="Post description"></textarea>
+                    <div *ngIf="shouldShowErrorAddPost('description', 'required')" class="text-danger">
+                        Description is required.
+                    </div>
+                    <div *ngIf="shouldShowErrorAddPost('description', 'maxlength')" class="text-danger">
+                        Description must be less than 100 characters.
+                    </div>
+                    <div *ngIf="shouldShowErrorAddPost('description', 'minlength')" class="text-danger">
+                        Description must be more than 3 characters.
+                    </div>
+                </div>
+
+                <div class="col-md-6 form-group mb-3">
+                    <label for="files">Files</label>
+                    <input type="file"  class="form-control" id="files" (change)="onFileSelected($event)" multiple>
+                </div>
+                <div class="col-md-12">
+                    <btn-loading btnClass="btn-success btn-rounded" [loading]="loading">Add Post</btn-loading>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>
+<ng-template #ModalAddQuiz let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title-quiz">Add Quiz</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form (ngSubmit)="addQuiz()">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 form-group mb-3">
+                            <label for="quizTitle">Quiz Title</label>
+                            <input type="text" id="quizTitle" class="form-control" [(ngModel)]="quizToAdd.title" name="title" required>
+                        </div>
+                        <div class="col-md-6 form-group mb-3">
+                            <label for="quizDescription">Quiz Description</label>
+                            <textarea id="quizDescription" class="form-control" [(ngModel)]="quizToAdd.description" name="description" required></textarea>
+                        </div>
+                        <div class="col-md-6 form-group mb-3">
+                            <label for="quizDuration">Quiz Duration (minutes)</label>
+                            <input type="number" id="quizDuration" class="form-control" [(ngModel)]="quizToAdd.duration" name="duration" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Questions</h5>
+                </div>
+                <div class="card-body">
+                    <div *ngFor="let question of quizToAdd.questions; let i = index; trackBy: trackByIndex" class="border p-3 mb-3">
+                        <div class="row">
+                            <div class="col-md-6 form-group mb-3">
+                                <label for="questionText{{i}}">Question {{i + 1}}</label>
+                                <input type="text" id="questionText{{i}}" class="form-control" [(ngModel)]="question.text" name="questionText{{i}}" required>
+                            </div>
+                            <div class="col-md-6 form-group mb-3">
+                                <label for="questionType{{i}}">Question Type</label>
+                                <select id="questionType{{i}}" class="form-control" [(ngModel)]="question.type" name="questionType{{i}}" required>
+                                    <option [value]="QuestionType.MULTIPLE_CHOICE">Multiple Choice</option>
+                                    <option [value]="QuestionType.SHORT_ANSWER">Short Answer</option>
+                                    <option [value]="QuestionType.LONG_ANSWER">Long Answer</option>
+                                </select>
+                            </div>
+                            <div *ngIf="question.type === 'MULTIPLE_CHOICE'" class="col-md-12 form-group mb-3">
+                                <label>Options</label>
+                                <div *ngFor="let option of question.options; let j = index; trackBy: trackByIndex" class="input-group mb-2">
+                                    <input type="text" class="form-control" [(ngModel)]="question.options[j]" name="question{{i}}option{{j}}" required>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-danger" (click)="removeOption(i, j)">Remove</button>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-primary btn-rounded" (click)="addOption(i)">Add Option</button>
+                            </div>
+                            <div class="col-md-6 form-group mb-3">
+                                <label for="correctAnswer{{i}}">Correct Answer</label>
+                                <input type="text" id="correctAnswer{{i}}" class="form-control" [(ngModel)]="question.correctAnswer" name="correctAnswer{{i}}" required>
+                            </div>
+                            <div class="col-md-6 form-group mb-3">
+                                <label for="questionPoints">Points</label>
+                                <input type="number" id="questionPoints" class="form-control" [(ngModel)]="question.points" name="points" required>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-rounded mb-3" (click)="addQuestion()">Add Question</button>
+                </div>
+            </div>
+            <div class="text-right">
+                <button type="button" class="btn btn-secondary btn-rounded mr-2" (click)="resetForm()">Reset</button>
+                <btn-loading btnClass="btn-success btn-rounded" [loading]="loading">Add Quiz</btn-loading>
+            </div>
+        </form>
+    </div>
+</ng-template>

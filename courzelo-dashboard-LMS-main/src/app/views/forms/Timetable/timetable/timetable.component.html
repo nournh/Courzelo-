@@ -1,0 +1,130 @@
+<div class="card">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title">{{ prof ? 'Professor Timetable' : 'Class Timetable' }}</h5>
+            <div>
+                    <button
+                            class="btn btn-primary"
+                            *ngIf="prof && !spinnerExport"
+                            (click)="handleGenerate()">
+                        <i class="fas fa-download"></i> Generate Timetable
+                    </button>
+                <button
+                        class="btn btn-primary"
+                        *ngIf="prof && !spinnerExport"
+                        (click)="handleExport()">
+                    <i class="fas fa-download"></i> Download
+                </button>
+            </div>
+
+        </div>
+        <!-- Timetable Table -->
+        <div *ngIf="ready" class="table-responsive">
+            <table class="table table-bordered">
+                <thead class="thead-light">
+                <tr>
+                    <th>Day</th>
+                    <th>8h30-10h30</th>
+                    <th>10h30-12h30</th>
+                    <th>14h00-16h00</th>
+                    <th>16h00-18h00</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let day of ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']">
+                    <td>{{ day }}</td>
+                    <ng-container *ngIf="day !== 'Saturday'">
+                        <td *ngIf="hasModule(day, '8h30-10h30')">
+                            <h6>{{ getModuleTitle(day, '8h30-10h30') }}</h6>
+                            <small>{{ getModuleTeacher(day, '8h30-10h30') }}</small>
+                        </td>
+                        <td *ngIf="hasModule(day, '10h30-12h30')">
+                            <h6>{{ getModuleTitle(day, '10h30-12h30') }}</h6>
+                            <small>{{ getModuleTeacher(day, '10h30-12h30') }}</small>
+                        </td>
+                        <td *ngIf="hasModule(day, '14h00-16h00')">
+                            <h6>{{ getModuleTitle(day, '14h00-16h00') }}</h6>
+                            <small>{{ getModuleTeacher(day, '14h00-16h00') }}</small>
+                        </td>
+                        <td *ngIf="hasModule(day, '16h00-18h00')">
+                            <h6>{{ getModuleTitle(day, '16h00-18h00') }}</h6>
+                            <small>{{ getModuleTeacher(day, '16h00-18h00') }}</small>
+                        </td>
+                    </ng-container>
+                    <td colspan="4" *ngIf="day === 'Saturday'" class="text-center">
+                        <strong>Controle et Rattrapage</strong>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- No Timetable Message -->
+        <div *ngIf="!ready" class="text-center mt-5 text-muted">
+            <p>Please select a field and semester to load the timetable.</p>
+        </div>
+    </div>
+</div>
+<form (ngSubmit)="onSubmit()" #elementModuleForm="ngForm">
+    <div class="form-group">
+        <label for="name">Element Module Name</label>
+        <input
+                type="text"
+                id="name"
+                class="form-control"
+                [(ngModel)]="elementModule.name"
+                name="name"
+                required
+        />
+    </div>
+
+    <div class="form-group">
+        <label for="classRoom">Select Course</label>
+        <select
+                id="classRoom"
+                class="form-control"
+                [(ngModel)]="elementModule.classRoom"
+                name="classRoom"
+                required
+        >
+            <option *ngFor="let classRoom of courses" [value]="classRoom.id">
+                {{ classRoom.name }}
+            </option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="group">Select Group</label>
+        <select
+                id="group"
+                class="form-control"
+                [(ngModel)]="elementModule.group"
+                name="group"
+                required
+        >
+            <option *ngFor="let group of groups" [value]="group.id">
+                {{ group.name }}
+            </option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="teacher">Select Teacher</label>
+        <select
+                id="teacher"
+                class="form-control"
+                [(ngModel)]="elementModule.teacher"
+                name="teacher"
+                required
+        >
+            <option *ngFor="let teacher of teachers" [value]="teacher.id">
+                {{ teacher.profile.name }}
+            </option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary" [disabled]="!elementModuleForm.form.valid">
+        Create Element Module
+    </button>
+</form>
+

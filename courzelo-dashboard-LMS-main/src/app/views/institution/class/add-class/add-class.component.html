@@ -1,0 +1,36 @@
+<div class="modal-header">
+    <h5 class="modal-title">Add Class</h5>
+    <button type="button" class="close" aria-label="Close" (click)="classAdded.emit()">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    <form [formGroup]="addClassForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input id="name" formControlName="name" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="students" class="form-label">Students Emails</label>
+            <tag-input id="students"
+                       formControlName="students"
+                       (onSelect)="onSelect($event)"
+                       [modelAsStrings]="true"
+                       secondaryPlaceholder="Enter students emails"
+                       placeholder="Add student email"
+                       [separatorKeyCodes]="[32, 188]"
+                       [addOnPaste]="true"
+                       [pasteSplitPattern]="pasteSplitPattern"
+                       [validators]="[emailValidator]"
+                       [onlyFromAutocomplete]="false">
+            </tag-input>
+        </div>
+        <div class="form-group">
+        <label for="programs">Programs</label>
+        <select formControlName="program" class="form-control" id="programs" data-live-search="true">
+            <option *ngFor="let program of availablePrograms" [value]="program.id">{{ program.name }}</option>
+        </select>
+        </div>
+        <button type="submit" class="btn btn-primary" [disabled]="addClassForm.invalid">Add Class</button>
+    </form>
+</div>
