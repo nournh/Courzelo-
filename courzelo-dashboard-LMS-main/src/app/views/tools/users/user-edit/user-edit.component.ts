@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { SuperAdminService } from 'src/app/shared/services/user/super-admin.service';
 import { ResponseHandlerService } from 'src/app/shared/services/user/response-handler.service';
 import { UserResponse } from 'src/app/shared/models/user/UserResponse';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-user-edit',
@@ -14,7 +14,8 @@ export class UserEditComponent implements OnInit {
   user!: UserResponse;
   editForm!: FormGroup;
   availableRoles: string[] = ['Admin', 'User', 'Moderator'];
-  genderOptions: string[] = ['Male', 'Female', 'Other']; // Example gender options
+  genderOptions: string[] = ['Male', 'Female', 'Other']; // Gender options
+  countries: string[] = ['USA', 'France', 'Germany', 'UK', 'Canada', 'Tunisia', 'Italy', 'Spain', 'India']; // Country list
   isLoading: boolean = true;
 
   constructor(
@@ -27,26 +28,26 @@ export class UserEditComponent implements OnInit {
 
   ngOnInit() {
     this.editForm = this.fb.group({
-      name: [''],
-      lastname: [''],
-      birthDate: [''],
-      gender: [''],
-      country: [''],
+      name: ['', Validators.required],
+      lastname: ['', Validators.required],
+      birthDate: ['', Validators.required],
+      gender: ['', Validators.required],
+      country: ['', Validators.required],
       title: [''],
       bio: [''],
-      email: [''],
-      roles: [[]] // Ensure roles is always an array
+      email: [{ value: '', disabled: true }, Validators.required], // Read-only email
+      roles: [[]]
     });
 
     const userId = this.route.snapshot.paramMap.get('id');
     if (userId) {
       this.superAdminService.getUserById(userId).subscribe(
         (user) => {
-          console.log('User data received:', user); // Debugging
-      
+          console.log('User data received:', user);
+
           this.user = user;
           this.isLoading = false;
-      
+
           this.editForm.patchValue({
             name: user.profile?.name || '',
             lastname: user.profile?.lastname || '',
@@ -56,7 +57,7 @@ export class UserEditComponent implements OnInit {
             title: user.profile?.title || '',
             bio: user.profile?.bio || '',
             email: user.email,
-            roles: Array.isArray(user.roles) ? user.roles : [] // Ensure roles are an array
+            roles: Array.isArray(user.roles) ? user.roles : []
           });
         },
         (error) => {
@@ -69,36 +70,42 @@ export class UserEditComponent implements OnInit {
 
   updateUser() {
     if (!this.user || !this.user.id) {
-        console.error("User ID is missing!");
-        return;
+      console.error("User ID is missing!");
+      return;
     }
 
-    console.log("Form values before update:", this.editForm.value); // 🔍 Vérifie ce que contient le formulaire
+    if (this.editForm.invalid) {
+      console.error("Form is invalid!");
+      return;
+    }
+
+    console.log("Form values before update:", this.editForm.value);
 
     const updatedUser = {
-        ...this.user, // Conserve les autres données de l'utilisateur
-        profile: {
-            ...this.user.profile, // Conserve les autres données du profil
-            name: this.editForm.value.name, 
-            lastname: this.editForm.value.lastname,
-            country: this.editForm.value.country,
-            title: this.editForm.value.title,  // ✅ Ajoute le titre
-            bio: this.editForm.value.bio  // ✅ Ajoute la bio
-        },
-        roles: Array.isArray(this.editForm.value.roles) ? this.editForm.value.roles : []
+      ...this.user,
+      profile: {
+        ...this.user.profile,
+        name: this.editForm.value.name, 
+        lastname: this.editForm.value.lastname,
+        birthDate: this.editForm.value.birthDate,
+        gender: this.editForm.value.gender,
+        country: this.editForm.value.country,
+        title: this.editForm.value.title,
+        bio: this.editForm.value.bio
+      },
+      roles: Array.isArray(this.editForm.value.roles) ? this.editForm.value.roles : []
     };
 
-    console.log("Sending update request:", updatedUser); // 🔍 Vérifie si les nouvelles valeurs sont bien là
+    console.log("Sending update request:", updatedUser);
 
     this.superAdminService.updateUser(this.user.id, updatedUser).subscribe(
-        (res) => {
-            console.log("User updated successfully:", res);
-            this.router.navigate(['/tools/users']).then(() => window.location.reload());
-        },
-        (error) => {
-            console.error("Error updating user:", error);
-        }
+      (res) => {
+        console.log("User updated successfully:", res);
+        this.router.navigate(['/tools/users']).then(() => window.location.reload());
+      },
+      (error) => {
+        console.error("Error updating user:", error);
+      }
     );
-}
-
+  }
 }

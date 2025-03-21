@@ -19,7 +19,8 @@ import { UserEditComponent } from './users/user-edit/user-edit.component';
         Users,
         InstitutionsComponent,
         RoleComponent,
-        UserEditComponent,
+        UserEditComponent
+        
     ],
     exports: [
         RoleComponent

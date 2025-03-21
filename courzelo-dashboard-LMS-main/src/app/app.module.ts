@@ -70,6 +70,7 @@ import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
    ClientRevisionComponent,
    ParticipateRevisionComponent,
    QuizrevisionComponent,
+   
 CalendarFormProjectComponent
 
 

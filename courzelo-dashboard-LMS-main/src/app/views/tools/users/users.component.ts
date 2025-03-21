@@ -5,6 +5,7 @@ import {UserResponse} from '../../../shared/models/user/UserResponse';
 import {ResponseHandlerService} from '../../../shared/services/user/response-handler.service';
 import {FormControl} from '@angular/forms';
 import {debounceTime} from 'rxjs/operators';
+
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 
@@ -21,20 +22,18 @@ export class Users implements OnInit {
   itemsPerPage = 10;
   loading = false;
   selectedRole = '';
+  isAddUserModalOpen = false;
   availableRoles: string[] = ['superadmin', 'admin', 'student', 'teacher'];
   searchControl: FormControl = new FormControl();
-  editingUser: UserResponse | null = null;
-  isAddUserModalOpen = false;
-newUser = { email: '', name: '', role: '' };
-  openAddUserModal() {
-    this.isAddUserModalOpen = true;
+  newUser = { email: '', name: '', role: '' };
+  get currentPage(): number {
+    return this._currentPage;
   }
   closeAddUserModal() {
     this.isAddUserModalOpen = false;
   }
-  
-  get currentPage(): number {
-    return this._currentPage;
+  openAddUserModal() {
+    this.isAddUserModalOpen = true;
   }
 
   set currentPage(value: number) {
@@ -120,7 +119,7 @@ newUser = { email: '', name: '', role: '' };
       });
     }
   }
-  
+
   updateUser(user: UserResponse) {
     console.log('Updating user:', user); // Debugging
     if (!user.id) {
@@ -209,4 +208,7 @@ newUser = { email: '', name: '', role: '' };
         }
       );
     }
-}}
+    
+}
+
+}

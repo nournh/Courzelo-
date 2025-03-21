@@ -1,49 +1,91 @@
 <div class="container mt-4">
-    <h2>Edit User</h2>
-  
-    <form [formGroup]="editForm" (ngSubmit)="updateUser()" *ngIf="editForm && !isLoading">
-      
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input id="email" class="form-control" formControlName="email" readonly />
-      </div>
-  
-      <div class="form-group">
-        <label for="name">First Name</label>
-        <input id="name" class="form-control" formControlName="name" />
-      </div>
-  
-      <div class="form-group">
-        <label for="lastname">Last Name</label>
-        <input id="lastname" class="form-control" formControlName="lastname" />
-      </div>
-  
-    
-  
-      <div class="form-group">
-        <label for="country">Country</label>
-        <input id="country" class="form-control" formControlName="country" />
-      </div>
-  
-      <div class="form-group">
-        <label for="title">Title</label>
-        <input id="title" class="form-control" formControlName="title" />
-      </div>
-  
-      <div class="form-group">
-        <label for="bio">Bio</label>
-        <textarea id="bio" class="form-control" formControlName="bio"></textarea>
-      </div>
-  
-     
-  
-      <button type="submit" class="btn btn-success">Save</button>
-      <button type="button" class="btn btn-secondary" (click)="router.navigate(['/tools/users'])">Cancel</button>
-    </form>
-  
-    <!-- Show loading message -->
-    <div *ngIf="isLoading">
-      <p>Loading user data...</p>
+    <h2 class="mb-4">Edit User</h2>
+
+    <!-- Show Loading Message if Data is Still Loading -->
+    <div *ngIf="isLoading" class="text-center">
+        <p>Loading user data...</p>
     </div>
-  </div>
-  
+
+    <!-- Form Section (Only Displayed When Data is Loaded) -->
+    <form [formGroup]="editForm" (ngSubmit)="updateUser()" *ngIf="editForm && !isLoading" class="needs-validation">
+        
+        <div class="row">
+            <!-- Email (Read-Only) -->
+            <div class="col-md-6 mb-3">
+                <label for="email">Email</label>
+                <input id="email" class="form-control" formControlName="email" readonly />
+            </div>
+
+            <!-- First Name -->
+            <div class="col-md-6 mb-3">
+                <label for="name">First Name</label>
+                <input id="name" class="form-control" formControlName="name" required />
+                <div *ngIf="editForm.get('name')?.invalid && editForm.get('name')?.touched" class="text-danger">
+                    First name is required.
+                </div>
+            </div>
+
+            <!-- Last Name -->
+            <div class="col-md-6 mb-3">
+                <label for="lastname">Last Name</label>
+                <input id="lastname" class="form-control" formControlName="lastname" required />
+                <div *ngIf="editForm.get('lastname')?.invalid && editForm.get('lastname')?.touched" class="text-danger">
+                    Last name is required.
+                </div>
+            </div>
+
+            <!-- Birth Date -->
+            <div class="col-md-6 mb-3">
+                <label for="birthDate">Birth Date</label>
+                <input id="birthDate" type="date" class="form-control" formControlName="birthDate" required />
+                <div *ngIf="editForm.get('birthDate')?.invalid && editForm.get('birthDate')?.touched" class="text-danger">
+                    Birth date is required.
+                </div>
+            </div>
+
+            <!-- Gender -->
+            <div class="col-md-6 mb-3">
+                <label for="gender">Gender</label>
+                <select id="gender" class="form-control" formControlName="gender" required>
+                    <option value="" disabled>Select Gender</option>
+                    <option *ngFor="let gender of genderOptions" [value]="gender">{{ gender }}</option>
+                </select>
+                <div *ngIf="editForm.get('gender')?.invalid && editForm.get('gender')?.touched" class="text-danger">
+                    Please select a gender.
+                </div>
+            </div>
+
+            <!-- Country -->
+            <div class="col-md-6 mb-3">
+                <label for="country">Country</label>
+                <select id="country" class="form-control" formControlName="country" required>
+                    <option value="" disabled>Select Country</option>
+                    <option *ngFor="let country of countries" [value]="country">{{ country }}</option>
+                </select>
+                <div *ngIf="editForm.get('country')?.invalid && editForm.get('country')?.touched" class="text-danger">
+                    Please select a country.
+                </div>
+            </div>
+
+            <!-- Title -->
+            <div class="col-md-6 mb-3">
+                <label for="title">Title</label>
+                <input id="title" class="form-control" formControlName="title" placeholder="Enter your title" />
+            </div>
+
+            <!-- Bio -->
+            <div class="col-md-6 mb-3">
+                <label for="bio">Bio</label>
+                <textarea id="bio" class="form-control" formControlName="bio" rows="3" placeholder="Write about yourself"></textarea>
+            </div>
+
+        </div> <!-- End of Row -->
+
+        <!-- Buttons -->
+        <div class="text-center mt-3">
+            <button type="submit" class="btn btn-success me-2" [disabled]="editForm.invalid">Save</button>
+            <button type="button" class="btn btn-secondary" (click)="router.navigate(['/tools/users'])">Cancel</button>
+        </div>
+
+    </form>
+</div>
