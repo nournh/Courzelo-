@@ -129,6 +129,12 @@ public class SuperAdminServiceImpl implements ISuperAdminService {
             if (updatedUser.getProfile().getBio() != null) {
                 user.getProfile().setBio(updatedUser.getProfile().getBio());
             }
+            if (updatedUser.getProfile().getBirthDate() != null) {
+                user.getProfile().setBirthDate(updatedUser.getProfile().getBirthDate());
+            }
+            if (updatedUser.getProfile().getGender() != null) {
+                user.getProfile().setGender(updatedUser.getProfile().getGender());
+            }
         }
 
         // Mettre à jour les rôles uniquement si la liste n'est pas vide
