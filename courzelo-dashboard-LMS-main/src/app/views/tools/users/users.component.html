@@ -159,6 +159,15 @@
     
     
 <!-- Pagination Controls -->
-<div class="pagination-container d-flex justify-content-center mt-4">
-    <pagination-controls (pageChange)="currentPage = $event"></pagination-controls>
-</div>  
+<div class="pagination-container text-center mt-3">
+    <pagination-controls 
+        (pageChange)="currentPage = $event"
+        [itemsPerPage]="itemsPerPage"
+        [totalItems]="totalItems"
+        previousLabel="‹"
+        nextLabel="›"
+        firstLabel="«"
+        lastLabel="»"
+        class="d-flex justify-content-center">
+    </pagination-controls>
+</div>

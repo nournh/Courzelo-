@@ -5,6 +5,8 @@ import { ResponseHandlerService } from 'src/app/shared/services/user/response-ha
 import { UserResponse } from 'src/app/shared/models/user/UserResponse';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UserService } from 'src/app/shared/services/user/user.service';
+import Swal from 'sweetalert2';
+
 
 @Component({
   selector: 'app-user-edit',
@@ -78,14 +80,14 @@ imageUrl: string | null = null;
       console.error("User ID is missing!");
       return;
     }
-
+  
     if (this.editForm.invalid) {
       console.error("Form is invalid!");
       return;
     }
-
+  
     console.log("Form values before update:", this.editForm.value);
-
+  
     const updatedUser = {
       ...this.user,
       profile: {
@@ -101,19 +103,40 @@ imageUrl: string | null = null;
       },
       roles: Array.isArray(this.editForm.value.roles) ? this.editForm.value.roles : []
     };
-
+  
     console.log("Sending update request:", updatedUser);
-
+  
     this.superAdminService.updateUser(this.user.id, updatedUser).subscribe(
       (res) => {
         console.log("User updated successfully:", res);
-        this.router.navigate(['/tools/users']).then(() => window.location.reload());
+  
+        // 🔹 Mettre à jour l'objet user localement pour éviter le refresh
+        this.user = { ...updatedUser };
+  
+        // 🔹 Afficher un message de succès avec SweetAlert2
+        Swal.fire({
+          icon: 'success',
+          title: 'User Updated!',
+          text: 'The user information has been successfully updated.',
+          confirmButtonColor: '#28a745'
+        });
+  
+        // 🔹 Ne pas recharger la page, simplement mettre à jour l'affichage
       },
       (error) => {
         console.error("Error updating user:", error);
+  
+        // 🔹 Afficher un message d'erreur
+        Swal.fire({
+          icon: 'error',
+          title: 'Update Failed',
+          text: 'An error occurred while updating the user.',
+          confirmButtonColor: '#dc3545'
+        });
       }
     );
   }
+  
   onFileSelected(event: Event) {
     const fileInput = event.target as HTMLInputElement;
     if (fileInput.files && fileInput.files.length > 0) {
@@ -129,23 +152,6 @@ imageUrl: string | null = null;
   }
   
   
-  uploadImage() {
-    if (!this.selectedFile || !this.user || !this.user.email) {
-      console.error('No file selected or user email missing');
-      return;
-    }
-  
-    this.superAdminService.uploadProfileImage(this.selectedFile, this.user.email).subscribe(
-      (response) => {
-        console.log('Image uploaded successfully:', response);
-        alert('Image uploaded successfully');
-        // Do not reset `imageUrl` to avoid loading the old image
-      },
-      (error) => {
-        console.error('Error uploading image:', error);
-      }
-    );
-  }
   
   
 }
