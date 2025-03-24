@@ -4,6 +4,7 @@ import { SuperAdminService } from 'src/app/shared/services/user/super-admin.serv
 import { ResponseHandlerService } from 'src/app/shared/services/user/response-handler.service';
 import { UserResponse } from 'src/app/shared/models/user/UserResponse';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UserService } from 'src/app/shared/services/user/user.service';
 
 @Component({
   selector: 'app-user-edit',
@@ -17,13 +18,16 @@ export class UserEditComponent implements OnInit {
   genderOptions: string[] = ['Male', 'Female', 'Other']; // Gender options
   countries: string[] = ['USA', 'France', 'Germany', 'UK', 'Canada', 'Tunisia', 'Italy', 'Spain', 'India']; // Country list
   isLoading: boolean = true;
+  selectedFile!: File;
+imageUrl: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private superAdminService: SuperAdminService,
     private handleResponse: ResponseHandlerService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private userService: UserService
   ) {}
 
   ngOnInit() {
@@ -35,19 +39,19 @@ export class UserEditComponent implements OnInit {
       country: ['', Validators.required],
       title: [''],
       bio: [''],
-      email: [{ value: '', disabled: true }, Validators.required], // Read-only email
-      roles: [[]]
+      email: [ '', Validators.required], 
+      roles: [[]],
     });
-
+  
     const userId = this.route.snapshot.paramMap.get('id');
     if (userId) {
       this.superAdminService.getUserById(userId).subscribe(
         (user) => {
           console.log('User data received:', user);
-
+  
           this.user = user;
           this.isLoading = false;
-
+  
           this.editForm.patchValue({
             name: user.profile?.name || '',
             lastname: user.profile?.lastname || '',
@@ -67,6 +71,7 @@ export class UserEditComponent implements OnInit {
       );
     }
   }
+  
 
   updateUser() {
     if (!this.user || !this.user.id) {
@@ -85,6 +90,7 @@ export class UserEditComponent implements OnInit {
       ...this.user,
       profile: {
         ...this.user.profile,
+        email: this.editForm.value.email,
         name: this.editForm.value.name, 
         lastname: this.editForm.value.lastname,
         birthDate: this.editForm.value.birthDate,
@@ -108,4 +114,38 @@ export class UserEditComponent implements OnInit {
       }
     );
   }
+  onFileSelected(event: Event) {
+    const fileInput = event.target as HTMLInputElement;
+    if (fileInput.files && fileInput.files.length > 0) {
+      this.selectedFile = fileInput.files[0];
+  
+      // Read the selected image file and display it immediately
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.imageUrl = e.target.result; // Display the new image
+      };
+      reader.readAsDataURL(this.selectedFile);
+    }
+  }
+  
+  
+  uploadImage() {
+    if (!this.selectedFile || !this.user || !this.user.email) {
+      console.error('No file selected or user email missing');
+      return;
+    }
+  
+    this.superAdminService.uploadProfileImage(this.selectedFile, this.user.email).subscribe(
+      (response) => {
+        console.log('Image uploaded successfully:', response);
+        alert('Image uploaded successfully');
+        // Do not reset `imageUrl` to avoid loading the old image
+      },
+      (error) => {
+        console.error('Error uploading image:', error);
+      }
+    );
+  }
+  
+  
 }

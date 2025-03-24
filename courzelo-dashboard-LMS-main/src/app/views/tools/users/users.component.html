@@ -132,26 +132,26 @@
         </ng-template>
     </ngx-datatable-column>
 
-    <!-- Actions Column -->
     <ngx-datatable-column name="Actions">
         <ng-template ngx-datatable-header-template>Actions</ng-template>
         <ng-template ngx-datatable-cell-template let-row="row">
-            <div style="display: flex;">
-              <!-- 🔵 View Profile (Blue) -->
-<button class="btn btn-info btn-sm" [routerLink]="['/pages/profile', row.email]">
-    <i class="fas fa-eye"></i>
-</button>
-
-<!-- 🟠 Edit User (Orange) -->
-<button class="btn btn-warning btn-sm" [routerLink]="['/edit-user', row.id]">
-    <i class="fas fa-edit"></i>
-</button>
-
-<!-- 🔴 Delete User (Red) -->
-<button class="btn btn-danger btn-sm" (click)="deleteUser(row)">
-    <i class="fas fa-trash-alt"></i>
-</button>
-</div>
+            <div class="action-buttons">
+                <!-- 🔵 View Profile (Blue) -->
+                <button class="btn btn-info btn-sm" [routerLink]="['/pages/profile', row.email]">
+                    <i class="fas fa-eye"></i>
+                </button>
+    
+                <!-- 🟠 Edit User (Orange) -->
+                <button class="btn btn-warning btn-sm" [routerLink]="['/edit-user', row.id]">
+                    <i class="fas fa-edit"></i>
+                </button>
+    
+                <!-- 🔴 Delete User (Red) -->
+                <button class="btn btn-danger btn-sm" (click)="deleteUser(row)">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+      
             
             
         </ng-template>
@@ -159,15 +159,6 @@
     
     
 <!-- Pagination Controls -->
-<div class="pagination-container text-center mt-3">
-    <pagination-controls 
-        (pageChange)="currentPage = $event"
-        [itemsPerPage]="itemsPerPage"
-        [totalItems]="totalItems"
-        previousLabel="‹"
-        nextLabel="›"
-        firstLabel="«"
-        lastLabel="»"
-        class="d-flex justify-content-center">
-    </pagination-controls>
-</div>
+<div class="pagination-container d-flex justify-content-center mt-4">
+    <pagination-controls (pageChange)="currentPage = $event"></pagination-controls>
+</div>  

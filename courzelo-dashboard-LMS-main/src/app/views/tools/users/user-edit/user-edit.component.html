@@ -1,91 +1,115 @@
-<div class="container mt-4">
-    <h2 class="mb-4">Edit User</h2>
+<div class="container mt-5">
+    <div class="card p-4 shadow-lg border-0">
+        <h2 class="mb-4 text-center text-primary fw-bold">Edit User</h2>
 
-    <!-- Show Loading Message if Data is Still Loading -->
-    <div *ngIf="isLoading" class="text-center">
-        <p>Loading user data...</p>
-    </div>
-
-    <!-- Form Section (Only Displayed When Data is Loaded) -->
-    <form [formGroup]="editForm" (ngSubmit)="updateUser()" *ngIf="editForm && !isLoading" class="needs-validation">
-        
-        <div class="row">
-            <!-- Email (Read-Only) -->
-            <div class="col-md-6 mb-3">
-                <label for="email">Email</label>
-                <input id="email" class="form-control" formControlName="email" readonly />
-            </div>
-
-            <!-- First Name -->
-            <div class="col-md-6 mb-3">
-                <label for="name">First Name</label>
-                <input id="name" class="form-control" formControlName="name" required />
-                <div *ngIf="editForm.get('name')?.invalid && editForm.get('name')?.touched" class="text-danger">
-                    First name is required.
-                </div>
-            </div>
-
-            <!-- Last Name -->
-            <div class="col-md-6 mb-3">
-                <label for="lastname">Last Name</label>
-                <input id="lastname" class="form-control" formControlName="lastname" required />
-                <div *ngIf="editForm.get('lastname')?.invalid && editForm.get('lastname')?.touched" class="text-danger">
-                    Last name is required.
-                </div>
-            </div>
-
-            <!-- Birth Date -->
-            <div class="col-md-6 mb-3">
-                <label for="birthDate">Birth Date</label>
-                <input id="birthDate" type="date" class="form-control" formControlName="birthDate" required />
-                <div *ngIf="editForm.get('birthDate')?.invalid && editForm.get('birthDate')?.touched" class="text-danger">
-                    Birth date is required.
-                </div>
-            </div>
-
-            <!-- Gender -->
-            <div class="col-md-6 mb-3">
-                <label for="gender">Gender</label>
-                <select id="gender" class="form-control" formControlName="gender" required>
-                    <option value="" disabled>Select Gender</option>
-                    <option *ngFor="let gender of genderOptions" [value]="gender">{{ gender }}</option>
-                </select>
-                <div *ngIf="editForm.get('gender')?.invalid && editForm.get('gender')?.touched" class="text-danger">
-                    Please select a gender.
-                </div>
-            </div>
-
-            <!-- Country -->
-            <div class="col-md-6 mb-3">
-                <label for="country">Country</label>
-                <select id="country" class="form-control" formControlName="country" required>
-                    <option value="" disabled>Select Country</option>
-                    <option *ngFor="let country of countries" [value]="country">{{ country }}</option>
-                </select>
-                <div *ngIf="editForm.get('country')?.invalid && editForm.get('country')?.touched" class="text-danger">
-                    Please select a country.
-                </div>
-            </div>
-
-            <!-- Title -->
-            <div class="col-md-6 mb-3">
-                <label for="title">Title</label>
-                <input id="title" class="form-control" formControlName="title" placeholder="Enter your title" />
-            </div>
-
-            <!-- Bio -->
-            <div class="col-md-6 mb-3">
-                <label for="bio">Bio</label>
-                <textarea id="bio" class="form-control" formControlName="bio" rows="3" placeholder="Write about yourself"></textarea>
-            </div>
-
-        </div> <!-- End of Row -->
-
-        <!-- Buttons -->
-        <div class="text-center mt-3">
-            <button type="submit" class="btn btn-success me-2" [disabled]="editForm.invalid">Save</button>
-            <button type="button" class="btn btn-secondary" (click)="router.navigate(['/tools/users'])">Cancel</button>
+        <!-- Loading Indicator -->
+        <div *ngIf="isLoading" class="text-center">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2 text-muted">Loading user data...</p>
         </div>
 
-    </form>
+        <!-- Form -->
+        <form [formGroup]="editForm" (ngSubmit)="updateUser()" *ngIf="editForm && !isLoading">
+            <div class="row g-4">
+                <!-- Email (Editable) -->
+                <div class="col-md-6">
+                    <label for="email" class="form-label fw-bold">Email</label>
+                    <input id="email" type="email" class="form-control rounded-3 shadow-sm" formControlName="email" required />
+                    <div *ngIf="editForm.get('email')?.invalid && editForm.get('email')?.touched" class="text-danger small mt-1">
+                        Valid email is required.
+                    </div>
+                </div>
+
+                <!-- First Name -->
+                <div class="col-md-6">
+                    <label for="name" class="form-label fw-bold">First Name</label>
+                    <input id="name" class="form-control rounded-3 shadow-sm" formControlName="name" required />
+                </div>
+
+                <!-- Last Name -->
+                <div class="col-md-6">
+                    <label for="lastname" class="form-label fw-bold">Last Name</label>
+                    <input id="lastname" class="form-control rounded-3 shadow-sm" formControlName="lastname" required />
+                </div>
+
+                <!-- Birth Date -->
+                <div class="col-md-6">
+                    <label for="birthDate" class="form-label fw-bold">Birth Date</label>
+                    <input id="birthDate" type="date" class="form-control rounded-3 shadow-sm" formControlName="birthDate" required />
+                </div>
+
+           <!-- Gender (Dropdown) -->
+<div class="col-md-6">
+    <label for="gender" class="form-label fw-bold">Gender</label>
+    <select id="gender" class="form-select rounded-3 shadow-sm" formControlName="gender" required>
+        <option value="" disabled selected>Select Gender</option>
+        <option *ngFor="let gender of genderOptions" [value]="gender">{{ gender }}</option>
+    </select>
 </div>
+
+<!-- Country (Dropdown) -->
+<div class="col-md-6">
+    <label for="country" class="form-label fw-bold">Country</label>
+    <select id="country" class="form-select rounded-3 shadow-sm" formControlName="country" required>
+        <option value="" disabled selected>Select Country</option>
+        <option *ngFor="let country of countries" [value]="country">{{ country }}</option>
+    </select>
+</div>
+
+
+                <!-- Title -->
+                <div class="col-md-6">
+                    <label for="title" class="form-label fw-bold">Title</label>
+                    <input id="title" class="form-control rounded-3 shadow-sm" formControlName="title" placeholder="Enter your title" />
+                </div>
+
+                <!-- Bio -->
+                <div class="col-md-6">
+                    <label for="bio" class="form-label fw-bold">Bio</label>
+                    <textarea id="bio" class="form-control rounded-3 shadow-sm" formControlName="bio" rows="3" placeholder="Write about yourself"></textarea>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-success px-4 fw-bold rounded-3 shadow-sm" [disabled]="editForm.invalid">
+                    Save
+                </button>
+                <button type="button" class="btn btn-outline-secondary px-4 ms-2 fw-bold rounded-3 shadow-sm" (click)="router.navigate(['/tools/users'])">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Optional: Add custom CSS for additional styling -->
+<style>
+    .form-control, .form-select {
+        transition: all 0.3s ease;
+        border: 1px solid #ced4da;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+    .card {
+        border-radius: 15px;
+    }
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+    .btn-success:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+    }
+    .btn-outline-secondary {
+        border-color: #6c757d;
+        color: #6c757d;
+    }
+    .btn-outline-secondary:hover {
+        background-color: #6c757d;
+        color: #fff;
+    }
+</style>

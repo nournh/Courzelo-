@@ -49,3 +49,10 @@
 .status-tags span:hover {
   color: black; /* Change icon color on hover */
 }
+.action-buttons button {
+  margin-right: 8px; /* Espace entre les boutons */
+}
+
+.action-buttons button:last-child {
+  margin-right: 0; /* Pas de marge pour le dernier bouton */
+}

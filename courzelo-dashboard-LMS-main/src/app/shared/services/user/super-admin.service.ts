@@ -40,5 +40,12 @@ export class SuperAdminService {
     addUser(user: { email: string; name: string; role: string }) {
       return this.http.post(`${this.baseUrl}/users`, user);
     }
+    uploadProfileImage(file: File, email: string) {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('email', email); // Ajout de l'email de l'utilisateur concerné
+    
+      return this.http.post<StatusMessageResponse>(`http://localhost:8080/api/v1/user/image`, formData);
+    }
     
 }
