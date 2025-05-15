@@ -1,44 +1,58 @@
-.form-select {
-    appearance: none; /* Supprime le style par défaut du navigateur */
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-color: #fff;
-    border: 1px solid #ced4da;
-    border-radius: 10px; /* Même arrondi que les inputs */
-    padding: 10px;
-    font-size: 16px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* Ajoute une ombre comme les inputs */
-    transition: all 0.3s ease-in-out;
+.icon-enabled {
+  transition: color 0.3s ease;
 }
 
-.form-select:focus {
-    border-color: #86b7fe;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+.icon-disabled {
+  transition: color 0.3s ease;
+  position: relative;
 }
-.form-control, .form-select {
-    transition: all 0.3s ease;
-    border: 1px solid #ced4da;
+
+.icon-enabled:hover {
+  color: #218838; /* Darker green for enabled */
 }
-.form-control:focus, .form-select:focus {
-    border-color: #86b7fe;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+
+.icon-disabled:hover {
+  color: white; /* Texte blanc pour la lisibilité */
 }
-.card {
-    border-radius: 15px;
+
+.icon-disabled:hover::after {
+  content: "Disabled";
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: black;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
 }
-.btn-success {
-    background-color: #28a745;
-    border-color: #28a745;
+
+.icon-banned:hover {
+  color: #c82333; /* Darker red for banned */
 }
-.btn-success:hover {
-    background-color: #218838;
-    border-color: #1e7e34;
+.status-tags span {
+  cursor: pointer; /* Ensures the cursor changes */
 }
-.btn-outline-secondary {
-    border-color: #6c757d;
-    color: #6c757d;
+
+.status-tags span:hover {
+  color: black !important; /* Makes the icon black when hovered */
 }
-.btn-outline-secondary:hover {
-    background-color: #6c757d;
-    color: #fff;
+.status-tags {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.status-tags span:hover {
+  color: black; /* Change icon color on hover */
+}
+.action-buttons button {
+  margin-right: 8px; /* Espace entre les boutons */
+}
+
+.action-buttons button:last-child {
+  margin-right: 0; /* Pas de marge pour le dernier bouton */
 }

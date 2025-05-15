@@ -46,7 +46,21 @@ import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
 import { DataTablesRoutingModule } from './views/data-tables/data-tables-routing.module';
 import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
-
+import { AddJobDialogComponent } from './views/Business/add-job-dialog/add-job-dialog.component';
+import { ApplyJobComponent } from './views/Business/apply-job/apply-job.component';
+import { JobOffersComponent } from './views/Business/job-offers/job-offers.component';
+import { UpdJobDialogComponent } from './views/Business/upd-job-dialog/upd-job-dialog.component';
+import { ViewApplicationsDialogComponent } from './views/Business/view-applications-dialog/view-applications-dialog.component';
+import { ViewJobDialogComponent } from './views/Business/view-job-dialog/view-job-dialog.component';
+import { CandidateJobComponent } from './views/Business/candidate-job/candidate-job.component';
+import { AddChallengeComponent } from './views/Business/add-challenge/add-challenge.component';
+import { AssignTestDialogComponent } from './views/Business/assign-test-dialog/assign-test-dialog.component';
+import { AssignedChallengesComponent } from './views/Business/assigned-challenges/assigned-challenges.component';
+import { CandidateApplicationsComponent } from './views/Business/candidate-applications/candidate-applications.component';
+import { DisplayChallengesComponent } from './views/Business/display-challenges/display-challenges.component';
+import { EditChallengeComponent } from './views/Business/edit-challenge/edit-challenge.component';
+import { ViewSubmissionsComponent } from './views/Business/view-submissions/view-submissions.component';
+import { MyChallengesComponent } from './views/Business/my-challenges/my-challenges.component';
 
 @NgModule({
   declarations: [
@@ -70,8 +84,22 @@ import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
    ClientRevisionComponent,
    ParticipateRevisionComponent,
    QuizrevisionComponent,
-   
-CalendarFormProjectComponent
+CalendarFormProjectComponent,
+AddJobDialogComponent,
+ApplyJobComponent,
+JobOffersComponent,
+ViewApplicationsDialogComponent,
+ViewJobDialogComponent,
+UpdJobDialogComponent,
+CandidateJobComponent,
+AddChallengeComponent,
+AssignTestDialogComponent,
+AssignedChallengesComponent,
+CandidateApplicationsComponent,
+DisplayChallengesComponent,
+EditChallengeComponent,
+ViewSubmissionsComponent,
+MyChallengesComponent
 
 
   ],

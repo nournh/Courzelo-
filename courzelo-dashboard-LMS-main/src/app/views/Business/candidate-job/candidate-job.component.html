@@ -1,0 +1,194 @@
+<div class="job-offers-container">
+  <h2 class="section-title">Available Job Offers</h2>
+
+  <!-- Search and Filters Section -->
+  <div class="filters-section">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input 
+        type="text" 
+        [formControl]="searchControl" 
+        placeholder="Search jobs by title, company, or keywords..."
+      >
+    </div>
+    
+    <div class="filter-controls">
+      <!-- Job Type Filter -->
+      <div class="filter-group">
+        <label>Job Type</label>
+        <select [formControl]="jobTypeFilter">
+          <option value="">All Types</option>
+          <option *ngFor="let type of jobTypeOptions" [value]="type">{{type}}</option>
+        </select>
+      </div>
+      
+      <!-- Location Type Filter -->
+      <div class="filter-group">
+        <label>Location Type</label>
+        <select [formControl]="locationTypeFilter">
+          <option value="">All Locations</option>
+          <option *ngFor="let loc of locationTypeOptions" [value]="loc">{{loc}}</option>
+        </select>
+      </div>
+      
+      <!-- Industry Filter -->
+      <div class="filter-group">
+        <label>Industry</label>
+        <select [formControl]="industryFilter">
+          <option value="">All Industries</option>
+          <option *ngFor="let industry of industryOptions" [value]="industry">{{industry}}</option>
+        </select>
+      </div>
+      
+      <!-- Sub-Industry Filter (only shown when industry is selected) -->
+   
+      
+      <!-- Country Filter -->
+      <div class="filter-group">
+        <label>Country</label>
+        <select [formControl]="countryFilter">
+          <option value="">All Countries</option>
+          <option *ngFor="let country of countryOptions" [value]="country">{{country}}</option>
+        </select>
+      </div>
+      
+      <!-- Schedule Type Filter -->
+      <div class="filter-group">
+        <label>Schedule Type</label>
+        <select [formControl]="scheduleTypeFilter">
+          <option value="">All Schedules</option>
+          <option *ngFor="let schedule of scheduleTypeOptions" [value]="schedule">{{schedule}}</option>
+        </select>
+      </div>
+      
+      <!-- Salary Range Filter -->
+      <div class="filter-group">
+        <label>Salary Range</label>
+        <select [formControl]="salaryRangeFilter">
+          <option value="">Any Salary</option>
+          <option *ngFor="let range of salaryRangeOptions" [value]="range">{{range}}</option>
+        </select>
+      </div>
+      
+      <button class="reset-btn" (click)="resetFilters()">
+        <i class="fas fa-redo"></i> Reset Filters
+      </button>
+    </div>
+  </div>
+
+  <!-- Results Count -->
+  <div class="results-count" *ngIf="!loading && !error && jobOffers.length > 0">
+    Showing {{filteredOffers.length}} of {{jobOffers.length}} jobs
+  </div>
+
+  <div *ngIf="loading" class="loading">Loading job offers...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <div *ngIf="!loading && !error">
+    <div *ngIf="filteredOffers.length > 0; else noResults">
+      <div class="job-grid">
+        <!-- Job cards remain the same as before -->
+        <div class="job-card" *ngFor="let job of filteredOffers">
+          <div class="card-header">
+            <div class="company-brand">
+          
+              <div class="company-info">
+                <h3>{{ job.title }}</h3>
+                <p class="company-name">{{ job.business?.companyName }}</p>
+              </div>
+            </div>
+            <div class="job-meta">
+              <span class="job-type">{{ job.jobType }}</span>
+              <span class="job-location">
+                <i class="fas fa-map-marker-alt"></i> {{ job.location }}, {{ job.country }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Quick Facts - Always Visible -->
+          <div class="quick-facts">
+            <div class="fact">
+              <i class="fas fa-calendar-alt"></i>
+              <div>
+                <span class="fact-label">Start Date</span>
+                <span class="fact-value">{{ job.startDate | date:'mediumDate' }}</span>
+              </div>
+            </div>
+            <div class="fact">
+              <i class="fas fa-clock"></i>
+              <div>
+                <span class="fact-label">Deadline</span>
+                <span class="fact-value">{{ job.deadlineDate | date:'mediumDate' }}</span>
+              </div>
+            </div>
+            <div class="fact">
+              <i class="fas fa-money-bill-wave"></i>
+              <div>
+                <span class="fact-label">Salary</span>
+                <span class="fact-value">
+                  {{ job.salaryCurrency }} {{ job.salaryRangeMin | number }} - {{ job.salaryRangeMax | number }}
+                  {{ job.salaryStartAmount | number }}
+          
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Expandable Sections -->
+          <div class="details-section">
+            <details class="detail-item">
+              <summary>
+                <i class="fas fa-file-alt"></i> Job Description
+              </summary>
+              <div class="detail-content">
+                <p>{{ job.description }}</p>
+              </div>
+            </details>
+
+            <details class="detail-item" *ngIf="job.requirement?.length">
+              <summary>
+                <i class="fas fa-tasks"></i> Requirements ({{ job.requirement.length }})
+              </summary>
+              <div class="detail-content">
+                <ul>
+                  <li *ngFor="let req of job.requirement">{{ req }}</li>
+                </ul>
+              </div>
+            </details>
+
+            <details class="detail-item" *ngIf="job.business">
+              <summary>
+                <i class="fas fa-building"></i> About {{ job.business.companyName }}
+              </summary>
+              <div class="detail-content">
+                <p>{{ job.business.description }}</p>
+                <div class="company-details">
+                  <p><i class="fas fa-users"></i> {{ job.business.nbEmployee }} employees</p>
+                  <p><i class="fas fa-globe"></i> <a [href]="job.business.website" target="_blank">{{ job.business.website }}</a></p>
+                </div>
+              </div>
+            </details>
+          </div>
+          <div class="card-footer">
+            <button class="apply-button" (click)="applyToJob(job.idJob)">Apply Now</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #noResults>
+      <div class="no-results">
+        <i class="fas fa-search"></i>
+        <h3>No jobs match your search criteria</h3>
+        <p>Try adjusting your filters or search term</p>
+        <button class="reset-btn" (click)="resetFilters()">
+          <i class="fas fa-redo"></i> Reset All Filters
+        </button>
+      </div>
+    </ng-template>
+
+    <ng-template #noOffers>
+      <p class="no-offers">No job offers available at the moment.</p>
+    </ng-template>
+  </div>
+</div>

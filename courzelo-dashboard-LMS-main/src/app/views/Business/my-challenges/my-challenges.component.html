@@ -1,0 +1,76 @@
+<div class="my-challenges">
+  <div class="header-row">
+    <h2>My Challenges</h2>
+    <div class="controls">
+      <!-- Search Bar -->
+      <div class="search-bar">
+        <input type="text" 
+               [(ngModel)]="searchTerm" 
+               (keyup)="applyFilters()" 
+               placeholder="Search challenges...">
+      </div>
+      
+      <!-- Filter Dropdown -->
+      <div class="filter-dropdown">
+        <select [(ngModel)]="selectedDifficulty" (change)="applyFilters()">
+          <option value="">All Difficulties</option>
+          <option *ngFor="let diff of difficultyOptions" [value]="diff">{{diff}}</option>
+        </select>
+      </div>
+      
+      <button class="add-button" (click)="openAddChallengeDialog()">+ Add Challenge</button>
+    </div>
+  </div>
+
+  <!-- Loading and Error States -->
+  <div *ngIf="loading">Loading...</div>
+  <div *ngIf="error" class="error-message">{{ error }}</div>
+  <div *ngIf="!loading && filteredChallenges.length === 0" class="empty-state">
+    No challenges found.
+  </div>
+
+  <!-- Challenges Grid -->
+  <div class="challenges-grid">
+    <div *ngFor="let challenge of paginatedChallenges" class="challenge-card">
+      <h3>{{ challenge.title }}</h3>
+      <p class="description">{{ challenge.description }}</p>
+      <div class="meta-info">
+        <span class="difficulty-badge" [class]="challenge.difficulty.toLowerCase()">
+          {{ challenge.difficulty }}
+        </span>
+        <span class="tasks-count">{{ challenge.tasks.length }} tasks</span>
+      </div>
+      <div class="actions">
+        <button [routerLink]="['/challenges', challenge.id, 'submissions']" class="btn btn-primary">
+          View Submissions
+        </button>
+        <button (click)="openEditDialog(challenge)" class="btn btn-edit">
+          Edit
+        </button>
+        <button (click)="deleteChallenge(challenge.id)" class="btn btn-danger">
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination Controls -->
+  <div class="pagination-controls" *ngIf="filteredChallenges.length > pageSize">
+    <button (click)="prevPage()" [disabled]="currentPage === 1" class="icon-button">
+      <i class="fas fa-chevron-left"></i>
+      <span>Previous</span>
+    </button>
+    
+    <button *ngFor="let page of pageNumbers" 
+            (click)="goToPage(page)"
+            [class.active]="currentPage === page"
+            class="page-number">
+      {{ page }}
+    </button>
+    
+    <button (click)="nextPage()" [disabled]="currentPage === totalPages" class="icon-button">
+      <span>Next</span>
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+</div>

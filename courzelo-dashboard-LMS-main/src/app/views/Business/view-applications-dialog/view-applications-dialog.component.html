@@ -1,0 +1,306 @@
+<div class="container-fluid application-manager">
+  <div class="row g-3">
+    <!-- Left Sidebar - Application List -->
+    <div class="col-lg-3 col-md-12">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Candidate Applications</h5>
+        </div>
+        <div class="card-body">
+          <!-- Search and Filter -->
+          <div class="mb-3">
+            <input type="text" class="form-control" [(ngModel)]="searchTerm" 
+                   (input)="filterApplications()" placeholder="Search candidates...">
+          </div>
+          
+          <div class="mb-3">
+            <select class="form-select" [(ngModel)]="statusFilter" (change)="filterApplications()">
+              <option value="ALL">All Statuses</option>
+              <option *ngFor="let status of availableStatuses" [value]="status">
+                {{ status }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Application List -->
+          <div class="application-list">
+            <div *ngIf="filteredApplications.length === 0" class="text-center py-3 text-muted">
+              No applications found
+            </div>
+
+            <div *ngFor="let app of filteredApplications" 
+                 class="application-item card mb-2 p-3" 
+                 [class.active]="currentApp?.idCandidateApp === app.idCandidateApp"
+                 (click)="selectApplication(app)">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <h6 class="mb-1">
+                    <i class="fas fa-user me-2"></i>
+                    {{ app.user?.profile?.name || 'Unknown' }} {{ app.user?.profile?.lastName || 'Candidate' }}
+                  </h6>
+                  <span class="badge rounded-pill me-2" 
+                        [ngClass]="getStatusClass(app.currentState?.label)">
+                    {{ app.currentState?.label || 'SUBMITTED' }}
+                  </span>
+                </div>
+                <small class="text-muted">
+                  {{ app.applicationDate | date: 'shortDate' }}
+                </small>
+              </div>
+              <div class="mt-2">
+                <small class="text-muted">
+                  <i class="fas fa-briefcase me-1"></i>
+                  {{ app.job?.title || 'No job title' }}
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Side - Application Details -->
+    <div class="col-lg-9 col-md-12">
+      <div *ngIf="!currentApp" class="card shadow-sm h-100">
+        <div class="card-body d-flex align-items-center justify-content-center">
+          <div class="text-center text-muted">
+            <i class="fas fa-user-tie fa-3x mb-3"></i>
+            <h4>Select an application to view details</h4>
+            <p>Choose from the list on the left</p>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="currentApp" class="card shadow-sm h-100">
+        <div class="card-header bg-light">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              Application Details - {{ currentApp.user?.profile?.name }} {{ currentApp.user?.profile?.lastName }}
+            </h5>
+            <span class="badge rounded-pill fs-6" 
+                  [ngClass]="getStatusClass(currentApp.currentState?.label)">
+              {{ currentApp.currentState?.label || 'SUBMITTED' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <!-- Candidate Info -->
+          <div class="row mb-4">
+            <div class="col-md-2 text-center">
+              <img src="../../../../assets/CourzeloBusiness/images/avatar.png" 
+                   class="img-thumbnail rounded-circle mb-2" width="100" height="100">
+              <button *ngIf="currentApp.cv" class="btn btn-sm btn-outline-primary w-100" 
+                      (click)="openCVInNewTab(currentApp.cv)">
+                <i class="fas fa-file-pdf me-1"></i> View CV
+              </button>
+            </div>
+            
+            <div class="col-md-5">
+              <h6>Candidate Information</h6>
+              <ul class="list-unstyled">
+                <li><strong>Email:</strong> {{ currentApp.user?.email || 'Not provided' }}</li>
+                <li><strong>Phone:</strong> {{ currentApp.user?.profile?.phone || 'Not provided' }}</li>
+                <li><strong>Location:</strong> {{ currentApp.user?.profile?.location || 'Not provided' }}</li>
+                <li><strong>Skills:</strong> 
+                  <span *ngIf="currentApp.user?.profile?.skills?.length; else noSkills">
+                    {{ currentApp.user?.profile?.skills?.join(', ') }}
+                  </span>
+                  <ng-template #noSkills>Not specified</ng-template>
+                </li>
+              </ul>
+            </div>
+            
+            <div class="col-md-5">
+              <h6>Application Details</h6>
+              <ul class="list-unstyled">
+                <li><strong>Job Title:</strong> {{ currentApp.job?.title || 'Not specified' }}</li>
+                <li><strong>Applied On:</strong> {{ currentApp.applicationDate | date: 'mediumDate' }}</li>
+                <li><strong>Last Updated:</strong> 
+                  {{ currentApp.currentState?.timestamp | date: 'mediumDate' || 'N/A' }}
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Test Score Card -->
+          <div class="card mb-4" *ngIf="hasPrehiringTest()">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+              <h6 class="mb-0">Prehiring Test Results</h6>
+              <button class="btn btn-sm" (click)="toggleTestDetails()">
+                <i class="fas" [class.fa-chevron-down]="!showTestDetails" [class.fa-chevron-up]="showTestDetails"></i>
+              </button>
+            </div>
+            <div class="card-body" *ngIf="showTestDetails">
+              <div *ngIf="getTestScore() !== null; else noTestScore">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <div>
+                    <h3 class="mb-0">{{ getTestScore() }}%</h3>
+                    <small class="text-muted">Overall Score</small>
+                  </div>
+                  <button class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-chart-bar me-1"></i> Detailed Report
+                  </button>
+                </div>
+                
+                <div class="progress mb-3" style="height: 10px;">
+                  <div class="progress-bar" 
+                      [ngClass]="{
+                        'bg-success': getTestScore() >= 70,
+                        'bg-warning': getTestScore() >= 40 && getTestScore() < 70,
+                        'bg-danger': getTestScore() < 40
+                      }" 
+                      [style.width.%]="getTestScore()">
+                  </div>
+                </div>
+                
+               
+              
+              <ng-template #noTestScore>
+                <div class="alert alert-info mb-0">
+                  <i class="fas fa-info-circle me-2"></i>
+                  <span *ngIf="currentApp.currentState?.label === 'SCREENING'">
+                    Test assigned but not completed yet
+                  </span>
+                  <span *ngIf="currentApp.currentState?.label !== 'SCREENING'">
+                    No test results available
+                  </span>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+<!-- Status Change Section -->
+<div class="card mb-4">
+  <div class="card-body">
+    <div class="mb-3">
+      <label class="form-label">Current Status:</label>
+      <div class="current-status-badge">
+        <span class="badge" [ngClass]="getStatusClass(currentApp.currentState?.label)">
+          {{ getStatusDisplay(currentApp.currentState?.label) }}
+        </span>
+        <small class="text-muted ms-2">
+          {{ currentApp.currentState?.timestamp | date:'shortDate' }}
+        </small>
+      </div>
+    </div>
+
+    <div *ngIf="getNextAvailableStatuses().length > 0">
+      <div class="mb-3">
+        <label class="form-label">Change Status To:</label>
+        <select class="form-select" [(ngModel)]="selectedNewStatus" (change)="onStatusChange($event)">
+          <option value="" disabled selected>Select new status</option>
+          <option *ngFor="let status of getNextAvailableStatuses()" [value]="status">
+            {{ getStatusDisplay(status) }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Interview Scheduling Section -->
+      <div *ngIf="selectedNewStatus?.includes('INTERVIEW')" class="interview-schedule-section mt-3 p-3 border rounded">
+        <h6>Schedule Interview</h6>
+        <div class="row">
+          <div class="col-md-6">
+            <label class="form-label">Date & Time</label>
+            <input type="datetime-local" class="form-control" [(ngModel)]="interviewDateTime">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Meeting Link</label>
+            <input type="text" class="form-control" [(ngModel)]="meetingLink" placeholder="https://meet.google.com/xyz">
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end mt-3">
+        <button class="btn btn-secondary me-2" (click)="cancelStatusChange()">Cancel</button>
+        <button class="btn btn-primary" (click)="confirmStatusChange()">Confirm Change</button>
+      </div>
+    </div>
+
+    <div *ngIf="getNextAvailableStatuses().length === 0" class="alert alert-info">
+      No further status transitions available for this application.
+    </div>
+
+    <!-- Status History -->
+    <div class="mt-4">
+      <h6>Status History</h6>
+      <div class="status-history">
+        <div *ngFor="let state of currentApp.candidateState" class="status-item">
+          <div class="status-badge" [ngClass]="getStatusClass(state.label)">
+            {{ getStatusDisplay(state.label) }}
+          </div>
+          <div class="status-details">
+            <small>{{ state.timestamp | date:'medium' }}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+        <!-- Notes Section -->
+<div class="card mb-4">
+  <div class="card-header bg-light d-flex justify-content-between align-items-center">
+    <h6 class="mb-0">Notes</h6>
+    <button class="btn btn-sm" (click)="showNotes = !showNotes">
+      <i class="fas" [class.fa-chevron-down]="!showNotes" [class.fa-chevron-up]="showNotes"></i>
+    </button>
+  </div>
+  <div class="card-body notes-section" *ngIf="showNotes">
+    <div *ngIf="currentApp.notes?.length; else noNotes">
+      <div *ngFor="let note of currentApp.notes" class="note-item">
+        <div *ngIf="editingNoteId !== note.idNotes; else editNoteTemplate">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <p class="note-text mb-2">{{ note.text || note.note }}</p>
+              <small class="note-meta">
+                {{ note.createdAt | date: 'medium' }} by {{ note.createdBy || 'System' }}
+              </small>
+            </div>
+            <div class="note-actions">
+              <button class="btn btn-sm btn-outline-primary me-2" (click)="startEditNote(note)">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger" (click)="deleteNote(note.idNotes)">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <ng-template #editNoteTemplate>
+          <div>
+            <textarea class="form-control mb-2" [(ngModel)]="editedNoteText"></textarea>
+            <div class="d-flex justify-content-end">
+              <button class="btn btn-sm btn-outline-secondary me-2" (click)="cancelEditNote()">
+                Cancel
+              </button>
+              <button class="btn btn-sm btn-primary" (click)="updateNote(note)">
+                Save
+              </button>
+            </div>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+    
+    <ng-template #noNotes>
+      <p class="text-muted">No notes added yet</p>
+    </ng-template>
+    
+    <div class="add-note-container">
+      <h6>Add New Note</h6>
+      <textarea class="form-control mb-2" [(ngModel)]="newNote" 
+                placeholder="Enter your note here..." rows="3"></textarea>
+      <button class="btn btn-primary" (click)="addNote()" [disabled]="!newNote.trim()">
+        <i class="fas fa-plus me-1"></i> Add Note
+      </button>
+    </div>
+  </div>
+</div>
+        
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

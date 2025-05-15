@@ -14,13 +14,16 @@ import {SemesterRequest} from '../../../shared/models/institution/SemesterReques
 import {InstitutionResponse} from '../../../shared/models/institution/InstitutionResponse';
 import {InstitutionTimeSlot} from '../../../shared/models/institution/InstitutionTimeSlot';
 import {InstitutionTimeSlotConfiguration} from '../../../shared/models/institution/InstitutionTimeSlotConfiguration';
+import { Room, RoomService } from 'src/app/shared/services/room-service.service';
 @Component({
   selector: 'app-edit',
   templateUrl: './edit.component.html',
   styleUrls: ['./edit.component.scss']
 })
 export class EditComponent implements OnInit, AfterViewInit {
-    constructor(
+  rooms: Room[] = [];
+  newRoomName: string = '';
+    constructor(private roomService: RoomService,
       private institutionService: InstitutionService,
       private handleResponse: ResponseHandlerService,
       private formBuilder: FormBuilder,
@@ -106,6 +109,15 @@ export class EditComponent implements OnInit, AfterViewInit {
     });
 
   ngOnInit() {
+     this.route.paramMap.subscribe(params => {
+      this.institutionID = params.get('institutionID') || ''; // Ensure institutionID is available
+      if (this.institutionID) {
+        this.loadRooms();  // Load rooms when institutionID is available
+      } else {
+        console.error('Institution ID is not available');
+      }
+    });
+        this.loadRooms();
       this.generationEvent.startDate = new Date();
       this.institutionID = this.route.snapshot.paramMap.get('institutionID');
       this.loadTimeslots();
@@ -140,7 +152,7 @@ if (this.pageTemplate)  {
     this.initializeMap();
 }
   }
-    onDayChange(event: any) {
+   onDayChange(event: any) {
         const day = event.target.value;
         if (event.target.checked) {
             this.selectedDays.push(day);
@@ -403,4 +415,50 @@ if (this.pageTemplate)  {
             }
         );
     }
-}
+    loadRooms(): void {
+        
+   this.roomService.getRooms(this.institutionID).subscribe
+(
+      (data) => {
+        this.rooms = data;
+      },
+      (error) => {
+        console.error('Error loading rooms', error);
+      }
+    );
+  }
+
+  // Add a new room
+  addRoom(): void {
+    if (this.newRoomName.trim() !== '') { // Ensure name is not empty
+      const newRoom: Room = { name: this.newRoomName, institutionID: this.institutionID };
+      this.roomService.addRoom(this.institutionID, newRoom).subscribe(
+        () => {
+          this.loadRooms(); // Reload the rooms after addition
+          this.newRoomName = ''; // Clear the input field
+        },
+        (error) => {
+          console.error('Error adding room', error);
+        }
+      );
+    } else {
+      alert('Please enter a valid room name');
+    }
+  }
+
+  // Delete a room by its ID
+  deleteRoom(id: string): void {
+    this.roomService.deleteRoom(this.institutionID, id).subscribe(
+      () => this.loadRooms(),
+      (error) => {
+        console.error('Error deleting room', error);
+      }
+    );
+  }
+     
+  }
+
+
+
+
+

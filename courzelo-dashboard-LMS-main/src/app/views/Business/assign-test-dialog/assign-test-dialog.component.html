@@ -1,0 +1,37 @@
+<div class="assigned-test-section">
+    <h3>Assigned Prehiring Tests</h3>
+    <div *ngIf="assignedTests.length > 0; else noTest">
+      <div *ngFor="let test of assignedTests" class="assigned-test">
+        <p><strong>Title:</strong> {{ test.title }}</p>
+        <p><strong>Intro:</strong> {{ test.intro }}</p>
+        <p><strong>Questions:</strong> {{ test.questions?.length || 0 }}</p>
+      </div>
+    </div>
+    <ng-template #noTest>
+      <p>No prehiring tests assigned to this job.</p>
+    </ng-template>
+  </div>
+  
+  <hr>
+  
+  <div class="assign-test-form">
+    <label for="testSelect" class="select-label"><strong>Select Test(s) to Assign:</strong></label>
+    
+    <!-- Modern Styled Dropdown -->
+    <div class="dropdown-container">
+      <select id="testSelect" [(ngModel)]="selectedTestIds">
+        <option *ngFor="let test of availableTests"
+                [value]="test.idPrehiringTest"
+                [disabled]="isTestAssigned(test.idPrehiringTest)">
+          {{ test.title }}
+        </option>
+      </select>
+    </div>
+  
+    <button (click)="assignPrehiringTest()" 
+            [disabled]="selectedTestIds.length === 0 || submitting" 
+            class="assign-button">
+      Assign Test(s)
+    </button>
+  </div>
+  

@@ -8,6 +8,7 @@ import {debounceTime} from 'rxjs/operators';
 
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import { User } from '../../chat/chat.service';
 
 @Component({
   selector: 'app-super-admin',
@@ -15,16 +16,27 @@ import { saveAs } from 'file-saver';
   styleUrls: ['./users.component.scss']
 })
 export class Users implements OnInit {
-  users: UserResponse[] = [];
+  users: any[] = []; // Liste des utilisateurs
+  itemsPerPage: number = 10; // Nombre d'éléments par page
+  //currentPage: number = 1; // Page actuelle
+  totalItems: number = 0; // Nombre total d'utilisateurs
   _currentPage = 1;
   totalPages = 0;
-  totalItems = 0;
-  itemsPerPage = 10;
   loading = false;
   selectedRole = '';
   isAddUserModalOpen = false;
   availableRoles: string[] = ['superadmin', 'admin', 'student', 'teacher'];
   searchControl: FormControl = new FormControl();
+  statusFilter: string = '';
+  banStatusFilter: string = 'all';  // Valeur initiale pour le filtre
+  filteredUsers: User[] = [];
+  banStatusFilterControl: FormControl = new FormControl('all');  // Add a FormControl for the banStatusFilter
+  banStatusControl = new FormControl('');
+  roleFilter: string = ''; // Filtre par rôle
+  roleFilterControl = new FormControl(''); // FormControl pour le rôle
+ 
+
+
   newUser = { email: '', name: '', role: '' };
   get currentPage(): number {
     return this._currentPage;
@@ -50,15 +62,38 @@ export class Users implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.loadUsers(this.currentPage, this.itemsPerPage, '');
-      this.searchControl.valueChanges
-          .pipe(debounceTime(200))
-          .subscribe(value => {
-            this.loadUsers(1, this.itemsPerPage, value);
-          });
-
+    this.loadUsers(this.currentPage, this.itemsPerPage, '', this.banStatusFilter, 'admin');
+    
+    this.searchControl.valueChanges
+      .pipe(debounceTime(200))
+      .subscribe(value => {
+        this.loadUsers(1, this.itemsPerPage, value, this.banStatusFilter, 'admin');
+      });
+  
+    this.banStatusControl.valueChanges
+      .pipe(debounceTime(200))
+      .subscribe(value => {
+        this.loadUsers(1, this.itemsPerPage, this.searchControl.value, value, 'admin');
+      });
   }
-  loadUsers(page: number, size: number, keyword: string) {
+  
+  
+  
+  applyRoleFilter() {
+    this.loadUsers(1, this.itemsPerPage, this.searchControl.value || '', this.banStatusFilter, this.roleFilter);
+  }
+  
+ 
+  
+  
+  
+  
+
+
+  pageChanged(event: number) {
+    this.currentPage = event;
+  }
+  /*loadUsers(page: number, size: number, keyword: string) {
     this.loading = true;
     this.superAdminService.getUsers(page - 1, size, keyword).subscribe((response: PaginatedUsersResponse) => {
       console.log(response);
@@ -66,6 +101,7 @@ export class Users implements OnInit {
         response.users.forEach(user => {
             user.roles = user.roles.map(role => role.toLowerCase());
         });
+      // Mettre à jour les variables de pagination
       this.users = response.users;
       this._currentPage = response.currentPage + 1;
       this.totalPages = response.totalPages;
@@ -74,10 +110,89 @@ export class Users implements OnInit {
       this.loading = false;
     }, error => {
       this.handleResponse.handleError(error);
-        this.loading = false;
+      this.loading = false;
+    });
+
+
+    
+  }*/
+    loadUsers(page: number, size: number, keyword: string = '', banStatus: string = '', role: string = '') {
+      this.loading = true;
+    
+      let bannedFilter: boolean | null = null;
+      if (banStatus === 'banned') {
+        bannedFilter = true;
+      } else if (banStatus === 'notBanned') {
+        bannedFilter = false;
+      }
+    
+      this.superAdminService.getUsers(page - 1, size, keyword).subscribe(
+        (response: PaginatedUsersResponse) => {
+          if (!response.users || response.users.length === 0) {
+            console.log('Aucun utilisateur trouvé');
+          }
+    
+          response.users.forEach(user => {
+            user.roles = user.roles.map(role => role.toLowerCase());
+          });
+    
+          // Filtrage des utilisateurs par statut de bannissement
+          let filteredUsers = response.users.filter(user => {
+            return (bannedFilter === null || user.security?.ban === bannedFilter);
+          });
+    
+          // Ajout du filtre par rôle
+          if (role) {
+            filteredUsers = filteredUsers.filter(user => user.roles.includes(role.toLowerCase()));
+          }
+    
+          this.users = filteredUsers;
+          this._currentPage = response.currentPage + 1;
+          this.totalPages = response.totalPages;
+          this.totalItems = response.totalItems;
+          this.itemsPerPage = response.itemsPerPage;
+          this.loading = false;
+        },
+        error => {
+          this.handleResponse.handleError(error);
+          this.loading = false;
+        }
+      );
     }
-    );
-  }
+    
+    
+    // Appliquer le filtre de bannissement lors de la sélection d'un statut
+    onBanStatusChange(status: string) {
+      console.log('Filtre sélectionné :', status);
+      this.banStatusFilter = status;
+      this.loadUsers(1, this.itemsPerPage, this.searchControl.value, this.banStatusFilter);
+    }
+    
+    // Appliquer les filtres supplémentaires dans applyFilters
+    applyFilters() {
+      let filteredUsers = this.users;
+    
+      // Filtrage par statut "Banned" ou "Not Banned"
+      if (this.banStatusFilter === 'banned') {
+        filteredUsers = filteredUsers.filter(user => user.security?.ban === true);
+      } else if (this.banStatusFilter === 'notBanned') {
+        filteredUsers = filteredUsers.filter(user => user.security?.ban === false);
+      }
+    
+      // Vous pouvez également appliquer d'autres filtres comme le statut "enabled" si nécessaire
+      if (this.statusFilter === 'enabled') {
+        filteredUsers = filteredUsers.filter(user => user.security?.enabled === true);
+      } else if (this.statusFilter === 'disabled') {
+        filteredUsers = filteredUsers.filter(user => user.security?.enabled === false);
+      }
+    
+      this.filteredUsers = filteredUsers;
+    }
+    
+    
+
+
+
   toggleBan(user: UserResponse) {
     this.superAdminService.toggleBan(user.email).subscribe(res => {
       user.security.ban = !user.security.ban;

@@ -1,0 +1,127 @@
+<div class="modern-dialog">
+    <div class="dialog-header">
+      <h2>Edit Challenge</h2>
+      <button class="close-btn" (click)="onCancel()" aria-label="Close dialog">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+  
+    <div class="dialog-content">
+      <form [formGroup]="challengeForm" (ngSubmit)="onSubmit()" class="challenge-form">
+        
+        <div class="form-section">
+          <!-- Title -->
+          <div class="form-group">
+            <label for="title">Title</label>
+            <input id="title" type="text" formControlName="title" placeholder="Challenge Title" required>
+            <div class="error" *ngIf="challengeForm.get('title')?.invalid && challengeForm.get('title')?.touched">
+              Title is required
+            </div>
+          </div>
+  
+          <!-- Description -->
+          <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" formControlName="description" placeholder="Challenge description" required></textarea>
+            <div class="error" *ngIf="challengeForm.get('description')?.invalid && challengeForm.get('description')?.touched">
+              Description is required
+            </div>
+          </div>
+  
+          <!-- Difficulty -->
+          <div class="form-group">
+            <label for="difficulty">Difficulty</label>
+            <select id="difficulty" formControlName="difficulty" required>
+              <option value="">Select Difficulty</option>
+              <option *ngFor="let level of difficulties" [value]="level">{{ level }}</option>
+            </select>
+            <div class="error" *ngIf="challengeForm.get('difficulty')?.invalid && challengeForm.get('difficulty')?.touched">
+              Difficulty is required
+            </div>
+          </div>
+  
+          <!-- Required Skills -->
+          <div class="form-group">
+            <label for="required-skills">Required Skills</label>
+            <div class="unified-skills-selector">
+              <div class="search-input-container">
+                <input type="text" [value]="skillSearch" (input)="onSkillSearchChange($event.target.value)" 
+                       (focus)="showSkillsDropdown = true" placeholder="Search or select skills..." 
+                       class="skills-search-input">
+                
+                <div class="dropdown" *ngIf="showSkillsDropdown && filteredSkills.length > 0">
+                  <div class="dropdown-list">
+                    <div class="dropdown-item" *ngFor="let skill of filteredSkills" 
+                         (mousedown)="toggleSkillSelection(skill)" (click)="$event.preventDefault()">
+                      <span class="checkbox">
+                        <i class="bi" [class.bi-check-square-fill]="requiredSkills.includes(skill)"
+                           [class.bi-square]="!requiredSkills.includes(skill)"></i>
+                      </span>
+                      {{ skill }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="selected-skills-preview">
+                <span class="item-tag" *ngFor="let skill of requiredSkills">
+                  {{ skill }}
+                  <button type="button" (click)="removeSkill(skill, $event)" aria-label="Remove skill">
+                    <i class="bi bi-x"></i>
+                  </button>
+                </span>
+                <span class="placeholder" *ngIf="requiredSkills.length === 0">No skills selected</span>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Tasks Section -->
+        <div class="tasks-section" formArrayName="tasks">
+          <div class="section-header">
+            <h3>Tasks</h3>
+            <button type="button" class="add-task-btn" (click)="addTask()">
+              <i class="bi bi-plus-lg"></i> Add Task
+            </button>
+          </div>
+  
+          <div class="task-list">
+            <div *ngFor="let task of tasks.controls; let i = index" [formGroupName]="i" class="task-card">
+              <div class="task-header">
+                <span class="task-number">Task {{i + 1}}</span>
+                <button type="button" class="remove-task-btn" (click)="removeTask(i)" *ngIf="tasks.length > 1" 
+                        aria-label="Remove task">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+  
+              <div class="form-group">
+                <label [for]="'question-' + i">Question</label>
+                <input [id]="'question-' + i" type="text" formControlName="question" placeholder="Enter question" required>
+                <div class="error" *ngIf="task.get('question')?.invalid && task.get('question')?.touched">
+                  Question is required
+                </div>
+              </div>
+  
+              <div class="form-group">
+                <label [for]="'answer-' + i">Expected Answer</label>
+                <input [id]="'answer-' + i" type="text" formControlName="expectedAnswer" 
+                       placeholder="Enter expected answer" required>
+                <div class="error" *ngIf="task.get('expectedAnswer')?.invalid && task.get('expectedAnswer')?.touched">
+                  Expected answer is required
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Actions -->
+        <div class="form-actions">
+          <button type="button" class="cancel-btn" (click)="onCancel()">Cancel</button>
+          <button type="submit" class="submit-btn" [disabled]="challengeForm.invalid">
+            <span *ngIf="!isSubmitting">Update Challenge</span>
+            <span *ngIf="isSubmitting" class="spinner"></span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>

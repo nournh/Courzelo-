@@ -323,4 +323,3 @@ export class TimetableComponent implements OnInit {
   const url = window.URL.createObjectURL(blob);
   window.open(url);
 }
-

@@ -42,6 +42,11 @@ import { ViewCoursePartsComponent } from './courses/view-course-parts/view-cours
 import { ModulesComponent } from './modules/modules.component';
 import { AddModuleComponent } from './modules/add-module/add-module.component';
 import { EditModuleComponent } from './modules/edit-module/edit-module.component';
+import { TimetableComponent } from './timetable/timetable.component';
+import { RoomsComponent } from './rooms/rooms.component';
+import { ProgramStatsModalComponent } from './programs/program-stats-moda/program-stats-moda.component';
+import { TeacherProgramsComponent } from './teacher-programs/teacher-programs.component';
+
 
 
 @NgModule({
@@ -70,6 +75,10 @@ import { EditModuleComponent } from './modules/edit-module/edit-module.component
     ModulesComponent,
     AddModuleComponent,
     EditModuleComponent,
+    TimetableComponent,
+    RoomsComponent,
+    ProgramStatsModalComponent,
+    TeacherProgramsComponent,
   ],
     imports: [
         CommonModule,

@@ -67,7 +67,7 @@ export class ProjectService {
       formData.append('file', file);
       formData.append('projectId', projectId);
     
-      const pdfUrl = `http://localhost:8080/project/${projectId}/upload`;
+      const pdfUrl = `http://194.146.13.51:31411/project/${projectId}/upload`;
       return this.http.post(pdfUrl, formData);
     }
     

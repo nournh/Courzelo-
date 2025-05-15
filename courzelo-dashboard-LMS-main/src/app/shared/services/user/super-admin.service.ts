@@ -40,6 +40,5 @@ export class SuperAdminService {
     addUser(user: { email: string; name: string; role: string }) {
       return this.http.post(`${this.baseUrl}/users`, user);
     }
-   
     
-  }
+}

@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { GroupRequest } from '../../models/institution/GroupRequest';
 import { GroupResponse } from '../../models/institution/GroupResponse';
 import { PaginatedGroupsResponse } from '../../models/institution/PaginatedGroupsResponse';
-import {UserResponse} from '../../models/user/UserResponse';
+import { UserResponse } from '../../models/user/UserResponse';
 
 @Injectable({
   providedIn: 'root'
@@ -12,19 +12,20 @@ import {UserResponse} from '../../models/user/UserResponse';
 export class GroupService {
   private baseUrl = 'http://localhost:8080/api/v1/group';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   getGroup(groupID: string): Observable<GroupResponse> {
     return this.http.get<GroupResponse>(`${this.baseUrl}/${groupID}`);
   }
+
   getMyGroup(): Observable<GroupResponse> {
     return this.http.get<GroupResponse>(`${this.baseUrl}/myGroup`);
   }
 
   getGroupsByInstitution(institutionID: string, page: number, keyword: string, sizePerPage: number): Observable<PaginatedGroupsResponse> {
     let params = new HttpParams()
-        .set('page', page.toString())
-        .set('sizePerPage', sizePerPage.toString());
+      .set('page', page.toString())
+      .set('sizePerPage', sizePerPage.toString());
     if (keyword != null) {
       params = params.set('keyword', keyword);
     }
@@ -54,6 +55,11 @@ export class GroupService {
   }
 
   getAllClasses(): Observable<UserResponse> {
-    return  this.http.get<UserResponse>(`${this.baseUrl}/all`);
+    return this.http.get<UserResponse>(`${this.baseUrl}/all`);
+  }
+
+  // ✅ New method: assign teachers to group
+  assignTeachersToGroup(groupID: string, teacherIds: string[]): Observable<void> {
+    return this.http.put<void>(`${this.baseUrl}/${groupID}/assignTeachers`, teacherIds);
   }
 }

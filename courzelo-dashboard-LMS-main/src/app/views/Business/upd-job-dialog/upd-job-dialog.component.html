@@ -1,0 +1,401 @@
+<div class="job-form-dialog-overlay">
+  <div class="job-form-dialog">
+    <!-- Header Section -->
+    <div class="dialog-header">
+      <h2>Update Job Offer</h2>
+      <button class="close-button" (click)="close()" aria-label="Close dialog">
+        &times;
+      </button>
+    </div>
+    
+    <!-- Scrollable Form Content -->
+    <div class="dialog-content">
+      <form [formGroup]="jobForm" class="elegant-form">
+        <!-- General Details Section -->
+        <div class="form-section">
+          <h3 class="section-title">General Details</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Title *</label>
+              <input type="text" formControlName="title" placeholder="Job title (max 100 chars)" maxlength="100">
+              <span class="error-message" *ngIf="jobForm.get('title')?.invalid && jobForm.get('title')?.touched">
+                <span *ngIf="jobForm.get('title')?.errors?.['required']">Title is required</span>
+                <span *ngIf="jobForm.get('title')?.errors?.['maxlength']">Max 100 characters</span>
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label>Status</label>
+              <select formControlName="state">
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
+
+            <div class="form-group full-width">
+              <label>Description *</label>
+              <textarea formControlName="description" rows="4" placeholder="Job description (max 1000 chars)" maxlength="1000"></textarea>
+              <span class="error-message" *ngIf="jobForm.get('description')?.invalid && jobForm.get('description')?.touched">
+                <span *ngIf="jobForm.get('description')?.errors?.['required']">Description is required</span>
+                <span *ngIf="jobForm.get('description')?.errors?.['maxlength']">Max 1000 characters</span>
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label>Start Date *</label>
+              <input type="date" formControlName="startDate" [min]="minDate" [max]="maxDate">
+              <span class="error-message" *ngIf="jobForm.get('startDate')?.invalid && jobForm.get('startDate')?.touched">
+                <span *ngIf="jobForm.get('startDate')?.errors?.['required']">Start date is required</span>
+                <span *ngIf="jobForm.get('startDate')?.errors?.['pastDate']">Date cannot be in the past</span>
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label>End Date *</label>
+              <input type="date" formControlName="deadlineDate" [min]="minDate" [max]="maxDate">
+              <span class="error-message" *ngIf="jobForm.get('deadlineDate')?.invalid && jobForm.get('deadlineDate')?.touched">
+                <span *ngIf="jobForm.get('deadlineDate')?.errors?.['required']">End date is required</span>
+                <span *ngIf="jobForm.get('deadlineDate')?.errors?.['pastDate']">Date cannot be in the past</span>
+              </span>
+              <span class="error-message" *ngIf="jobForm.errors?.['dateRange']">
+                End date must be after start date
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Industry Section -->
+        <div class="form-section">
+          <h3 class="section-title">Industry</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Industry *</label>
+              <select formControlName="industry" (change)="onChange($event.target.value)">
+                <option value="">Select an industry</option>
+                <option *ngFor="let industry of data.industries" [value]="industry.industry.industryName">
+                  {{industry.industry.industryName}}
+                </option>
+              </select>
+              <span class="error-message" *ngIf="jobForm.get('industry')?.invalid && jobForm.get('industry')?.touched">
+                Industry is required
+              </span>
+            </div>
+
+            <div class="form-group" *ngIf="subIndustriesList.length > 0">
+              <label>Sub-Industry *</label>
+              <select formControlName="subIndustry">
+                <option value="">Select a sub-industry</option>
+                <option *ngFor="let subIndustry of subIndustriesList" [value]="subIndustry.industryName">
+                  {{subIndustry.industryName}}
+                </option>
+              </select>
+              <span class="error-message" *ngIf="jobForm.get('subIndustry')?.invalid && jobForm.get('subIndustry')?.touched">
+                Sub-industry is required
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Job Type Section -->
+        <div class="form-section">
+          <h3 class="section-title">Job Type</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Job Type *</label>
+              <select formControlName="jobType">
+                <option *ngFor="let type of jobTypes" [value]="type">{{ type }}</option>
+              </select>
+              <span class="error-message" *ngIf="jobForm.get('jobType')?.invalid && jobForm.get('jobType')?.touched">
+                Job type is required
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label>Schedule Type *</label>
+              <select formControlName="schedulesType">
+                <option value="flexible">Flexible</option>
+                <option value="8-hour shift">8-Hour Shift</option>
+                <option value="weekend availability">Weekend Availability</option>
+                <option value="On call availability">On Call Availability</option>
+              </select>
+              <span class="error-message" *ngIf="jobForm.get('schedulesType')?.invalid && jobForm.get('schedulesType')?.touched">
+                Schedule type is required
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Location Section -->
+        <div class="form-section">
+          <h3 class="section-title">Location</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Country *</label>
+              <select formControlName="country">
+                <option *ngFor="let country of countries" [value]="country.name">
+                  <img [src]="country.flag" alt="{{ country.name }}" style="width: 20px; height: 15px; margin-right: 10px;">
+                  {{ country.name }}
+                </option>
+              </select>
+              <span class="error-message" *ngIf="jobForm.get('country')?.invalid && jobForm.get('country')?.touched">
+                Country is required
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label>Location Type *</label>
+              <select formControlName="locationType">
+                <option value="on site">On site</option>
+                <option value="remote">Remote</option>
+                <option value="mixed">Mixed</option>
+              </select>
+            </div>
+
+            <div class="form-group" *ngIf="jobForm.get('locationType')?.value !== 'remote'">
+              <label>Location</label>
+              <input type="text" formControlName="location" placeholder="Office address (max 200 chars)" maxlength="200">
+              <span class="error-message" *ngIf="jobForm.get('location')?.invalid && jobForm.get('location')?.touched">
+                Max 200 characters
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Requirements Section -->
+        <div class="form-section">
+          <h3 class="section-title">Requirements</h3>
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label>Hiring Number *</label>
+              <input type="number" formControlName="hireNumber" min="1" max="100">
+              <span class="error-message" *ngIf="jobForm.get('hireNumber')?.invalid && jobForm.get('hireNumber')?.touched">
+                <span *ngIf="jobForm.get('hireNumber')?.errors?.['required']">Hiring number is required</span>
+                <span *ngIf="jobForm.get('hireNumber')?.errors?.['min']">Minimum 1</span>
+                <span *ngIf="jobForm.get('hireNumber')?.errors?.['max']">Maximum 100</span>
+              </span>
+            </div>
+  
+            <div class="form-group full-width requirements-container">
+              <label>Skills / Requirements (up to 10)</label>
+              
+              <!-- Combined Input Section -->
+              <div class="input-container">
+                <!-- Skill Dropdown Input -->
+                <div class="skill-input-container">
+                  <div class="custom-dropdown">
+                    <input 
+                      type="text" 
+                      class="skill-input" 
+                      placeholder="Search or add skill"
+                      [(ngModel)]="selectedSkill" 
+                      [ngModelOptions]="{standalone: true}"
+                      (input)="filterSkills($event.target.value)"
+                      (focus)="showSkillDropdown = true"
+                      (blur)="onSkillInputBlur()" />
+    
+                    <!-- Filtered Skills Dropdown -->
+                    <div class="dropdown-list" *ngIf="showSkillDropdown && filteredSkills.length">
+                      <div 
+                        class="dropdown-item" 
+                        *ngFor="let skill of filteredSkills"
+                        (mousedown)="selectSkill(skill)">
+                        {{ skill }}
+                      </div>
+                    </div>
+    
+                    <!-- Add Custom Skill Option -->
+                    <div class="dropdown-footer" *ngIf="selectedSkill && !filteredSkills.length">
+                      <button 
+                        type="button" 
+                        class="add-custom-btn"
+                        (mousedown)="addCustomRequirement()">
+                        Add "<i>{{selectedSkill}}</i>" as a custom skill
+                      </button>
+                    </div>
+                  </div>
+    
+                  <button 
+                    type="button" 
+                    class="add-btn primary"
+                    [disabled]="!selectedSkill"
+                    (click)="addCustomRequirement()">
+                    <i class="fas fa-plus"></i> Add Skill
+                  </button>
+                </div>
+    
+                <!-- Divider -->
+                <div class="divider">
+                  <span>or</span>
+                </div>
+    
+                <!-- Manual Requirement Input -->
+                <div class="manual-input-container">
+                  <input 
+                    type="text" 
+                    class="manual-input"
+                    placeholder="Type a custom requirement"
+                    [(ngModel)]="newManualRequirement"
+                    [ngModelOptions]="{standalone: true}"
+                    (keyup.enter)="addManualRequirement()" />
+    
+                  <button 
+                    type="button" 
+                    class="add-btn secondary"
+                    [disabled]="!newManualRequirement"
+                    (click)="addManualRequirement()">
+                    <i class="fas fa-plus"></i> Add
+                  </button>
+                </div>
+              </div>
+    
+              <!-- Selected Requirements Display -->
+              <div class="selected-requirements">
+                <div 
+                  class="requirement-chip" 
+                  *ngFor="let req of requirements.controls; let i = index">
+                  <span>{{ req.value }}</span>
+                  <button 
+                    type="button" 
+                    class="remove-btn"
+                    *ngIf="requirements.length > 1"
+                    (click)="removeRequirement(i)">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+    
+              <!-- Counter -->
+              <div class="counter">
+                {{ requirements.length }}/10 requirements added
+              </div>
+    
+              <!-- Validation Error -->
+              <div class="error-message" *ngIf="requirements.invalid && (requirements.touched || requirements.dirty)">
+                Please add at least one requirement
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Salary Section -->
+        <div class="form-section">
+          <h3 class="section-title">Salary</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Currency *</label>
+              <select formControlName="salaryCurrency">
+                <option value="USD">United States Dollar (USD $)</option>
+                <option value="EUR">Euro (EUR €)</option>
+                <option value="GBP">British Pound (GBP £)</option>
+                <option value="CAD">Canadian Dollar (CAD $)</option>
+                <option value="TND">Tunisian Dinar (TND د.ت)</option>
+                <option value="EGP">Egyptian Pound (EGP £)</option>
+                <option value="QAR">Qatari Riyal (QAR ر.ق)</option>
+                <option value="INR">Indian Rupee (INR ₹)</option>
+                <option value="AED">UAE Dirham (AED د.إ)</option>
+                <option value="SAR">Saudi Riyal (SAR ر.س)</option>
+                <option value="AUD">Australian Dollar (AUD $)</option>
+                <option value="JPY">Japanese Yen (JPY ¥)</option>
+                <option value="CNY">Chinese Yuan (CNY ¥)</option>
+                <option value="CHF">Swiss Franc (CHF CHF)</option>
+                <option value="MAD">Moroccan Dirham (MAD د.م.)</option>
+                <option value="TRY">Turkish Lira (TRY ₺)</option>
+                <option value="RUB">Russian Ruble (RUB ₽)</option>
+                <option value="ZAR">South African Rand (ZAR R)</option>
+                <option value="BRL">Brazilian Real (BRL R$)</option>
+                <option value="MXN">Mexican Peso (MXN $)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Salary Option</label>
+              <select formControlName="salaryOption">
+                <option value="Exact amount">Exact amount</option>
+                <option value="Range">Range</option>
+                <option value="Starting amount">Starting amount</option>
+              </select>
+            </div>
+
+            <div class="form-group" *ngIf="jobForm.get('salaryOption')?.value === 'Exact amount'">
+              <label>Salary Amount</label>
+              <input type="number" formControlName="salary" min="0">
+              <span class="error-message" *ngIf="jobForm.get('salary')?.invalid && jobForm.get('salary')?.touched">
+                Must be positive
+              </span>
+            </div>
+
+            <div class="form-group" *ngIf="jobForm.get('salaryOption')?.value === 'Starting amount'">
+              <label>Starting Amount</label>
+              <input type="number" formControlName="salaryStartAmout" min="0">
+              <span class="error-message" *ngIf="jobForm.get('salaryStartAmout')?.invalid && jobForm.get('salaryStartAmout')?.touched">
+                Must be positive
+              </span>
+            </div>
+
+            <div class="form-group" *ngIf="jobForm.get('salaryOption')?.value === 'Range'">
+              <label>Min Salary</label>
+              <input type="number" formControlName="salaryRangeMin" min="0">
+              <span class="error-message" *ngIf="jobForm.get('salaryRangeMin')?.invalid && jobForm.get('salaryRangeMin')?.touched">
+                Must be positive
+              </span>
+            </div>
+
+            <div class="form-group" *ngIf="jobForm.get('salaryOption')?.value === 'Range'">
+              <label>Max Salary</label>
+              <input type="number" formControlName="salaryRangeMax" min="0">
+              <span class="error-message" *ngIf="jobForm.get('salaryRangeMax')?.invalid && jobForm.get('salaryRangeMax')?.touched">
+                Must be positive
+              </span>
+              <span class="error-message" *ngIf="jobForm.errors?.['salaryRange']">
+                Max salary must be greater than min salary
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Communication Section -->
+        <div class="form-section">
+          <h3 class="section-title">Communication</h3>
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label class="checkbox-container">
+                <input type="checkbox" formControlName="communication">
+                <span class="checkmark"></span>
+                Send application notifications to my email
+              </label>
+            </div>
+
+            <div class="form-group full-width" *ngIf="jobForm.get('communication')?.value">
+              <label>Notification Emails (max 5)</label>
+              <div formArrayName="communicationMails" *ngFor="let mail of mails.controls; let i = index">
+                <div class="mail-item">
+                  <input type="email" [formControlName]="i" placeholder="Email address">
+                  <button type="button" class="remove-btn" (click)="removeMail(i)">
+                    &minus;
+                  </button>
+                </div>
+                <span class="error-message" *ngIf="mail.invalid && mail.touched">
+                  <span *ngIf="mail.errors?.['required']">Email is required</span>
+                  <span *ngIf="mail.errors?.['email']">Invalid email format</span>
+                </span>
+              </div>
+              <button type="button" class="add-btn" (click)="addMail()" [disabled]="mails.length >= 5">
+                + Add Email
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Form Actions - Sticky Footer -->
+    <div class="dialog-footer">
+      <div class="footer-content">
+        <button class="cancel-btn" (click)="close()">Cancel</button>
+        <button class="submit-btn" (click)="updateJob()" [disabled]="jobForm.invalid || loading">
+          Update Job Offer
+          <span class="submit-icon">→</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

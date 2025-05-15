@@ -124,4 +124,5 @@ export class SidebarCompactComponent implements OnInit {
   onResize(event) {
     this.updateSidebar();
   }
+  
 }

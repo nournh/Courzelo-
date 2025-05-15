@@ -9,10 +9,10 @@ pipeline {
     agent any
 
     environment {
-       DOCKERHUB_USERNAME = "oussemaouakad"
-        DEV_TAG = "${DOCKERHUB_USERNAME}/courzelo-front-webapp:v1.1.7-dev"
-        STAGING_TAG = "${DOCKERHUB_USERNAME}/courzelo-front-webapp:v1.0.0-staging"
-        PROD_TAG = "${DOCKERHUB_USERNAME}/courzelo-front-webapp:v1.0.0-prod"
+        DOCKERHUB_USERNAME = "cyrine995"
+        DEV_TAG = "${DOCKERHUB_USERNAME}/courzelo-front-webapp:v1.1.10-dev"
+        STAGING_TAG = "${DOCKERHUB_USERNAME}/courzelo-front-webapp:v4.0.20-staging"
+        PROD_TAG = "${DOCKERHUB_USERNAME}/courzelo-front-webapp:v4.0.20-prod"
     }
 
     parameters {
@@ -22,129 +22,109 @@ pipeline {
     }
 
     stages {
-        stage('Github') {
+        stage('Branch Name') {
             steps {
                 script {
                     branchName = params.BRANCH_NAME
-                    targetBranch = branchName
-
-                    git branch: branchName,
-                        url: 'https://github.com/Godyrex/Courzelo-Web-LMS.git',
-                        credentialsId: 'AlaGitH'
+                    echo "Current branch name: ${branchName}"
                 }
-                echo "Current branch name: ${branchName}"
-                echo "Current branch name: ${targetBranch}"
             }
         }
 
-      stage('Clean') {
+        stage('Target Branch') {
+            steps {
+                script {
+                    targetBranch = branchName
+                    echo "Target branch name: ${targetBranch}"
+                }
+            }
+        }
+
+        stage('GitHub Checkout') {
+            steps {
+                git branch: branchName, url: 'https://github.com/ipactconsult2025/courzelo-dashboard-LMS.git', credentialsId: 'git-cred'
+                echo "Current branch name: ${branchName}"
+                echo "Target branch name: ${targetBranch}"
+            }
+        }
+
+        stage('Clean Build') {
             steps {
                 sh 'rm -rf node_modules'
             }
         }
 
-        stage('Install dependencies'){
+	    stage('Install dependencies'){
             steps{
                 nodejs('nodeJSInstallationName'){
-                  sh 'npm install --legacy-peer-deps'
-                  //sh 'npm install webpack --legacy-peer-deps'
+                  sh 'npm install --legacy-peer-deps --force'
+                 
+                }
+            }
+        }
+	      stage('SonarQube Analysis') {
+     when {
+                expression {
+                    (params.CHANGE_ID != null) && ((targetBranch == 'develop2025') || (targetBranch == 'main') || (targetBranch == 'staging'))
+                }
+            }
+    steps {
+        script {
+            def scannerHome = tool 'sonarqubeScanner'
+            withSonarQubeEnv('sq1') {
+                sh """
+                    ${scannerHome}/bin/sonar-scanner \
+                    -Dsonar.projectKey=courzelo-dashboard-lms \
+                    -Dsonar.projectName="courzelo-dashboard-lms" \
+                    -Dsonar.sources=src 
+                    
+                """
+            }
+        }
+    }
+      }
+
+
+
+	
+
+
+
+        stage('Build Docker') {
+            steps {
+                script {
+                    echo "Building Docker image"
+                    sh "docker build -t ${DEV_TAG} ."
                 }
             }
         }
 
-      // stage('Static Test with Sonar') {
-      //         // environment {
-      //        //     scannerHome = tool 'SonarScanner'
-      //         // }
-      //        when {
-      //            expression {
-      //                (params.CHANGE_ID != null) && ((targetBranch == 'devops') || (targetBranch == 'main') || (targetBranch == 'staging'))
-      //            }
-      //      }
-      //         steps{
-      //            nodejs('nodeJSInstallationName'){
-      //                sh 'node sonar-project.js'
-      //            }
-      //         }
-      // }
-
-       stage('Build Docker') {
-    when {
-        expression {
-          (params.CHANGE_ID != null) && ((targetBranch == 'develop') || (targetBranch == 'main') || (targetBranch == 'staging'))
-        }
-    }
-    steps {
-        script {
-            if (targetBranch == 'staging') {
-                sh "docker build -t ${STAGING_TAG} ."
-            } else if (targetBranch == 'main') {
-                sh "docker build -t ${PROD_TAG} ."
-            } else if (targetBranch == 'develop' ) {
-                sh "docker build -t ${DEV_TAG} ."
-            }
-        }
-    }
-}
-
-        
-     stage('Docker Login'){
-        steps{
-            withCredentials([usernamePassword(credentialsId: 'Ala_dockerHub', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-            sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}"
-            }
-        }
-    }
-
-
-        
-	stage('Docker Push'){
-		when {
-        expression {
-(params.CHANGE_ID != null) && ((targetBranch == 'develop') || (targetBranch == 'main') || (targetBranch == 'staging'))        }
-    }
-            steps{
-                sh 'docker push $DOCKERHUB_USERNAME/courzelo-front-webapp --all-tags '
+        stage('Docker Login') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                    sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}"
+                }
             }
         }
 
-
-  stage('Remove Containers') {
-      when {
-        expression {
-(params.CHANGE_ID != null) && ((targetBranch == 'develop') || (targetBranch == 'main') || (targetBranch == 'staging'))        }
-      }
-      steps {
-        sh '''
-        container_ids=$(docker ps -q --filter "publish=4225/tcp")
-        if [ -n "$container_ids" ]; then
-          echo "Stopping and removing containers..."
-          docker stop $container_ids
-          docker rm $container_ids
-        else
-          echo "No containers found using port 4225."
-        fi
-        '''
-      }
-    }
-
-
-      stage('Deploy to DEV') {
-      when {
-        expression {
-          (params.CHANGE_ID != null) && ((targetBranch == 'main')|| (targetBranch == 'develop'))
+        stage('DockerHub Push') {
+            steps {
+                sh "docker push ${DEV_TAG}"
+            }
         }
-      }
-      steps {
-        // sh "docker pull ${DEV_TAG}"
-        // sh "docker run -d --name courzelo-prod -p 4225:80 ${DEV_TAG}"
-        sh "sudo ansible-playbook k8s.yml -i host.yml"
-      }
-    }
-      
-      
-    
 
-  
-  }
+       
+
+        stage('Deploy ') {
+            when {
+                expression {
+                    (params.CHANGE_ID != null) && (targetBranch == 'develop2025')
+                }
+            }
+            steps {
+		    sh "sudo ansible-playbook k8s.yml -i host.yml"
+
+            }
+        }
+    }
 }

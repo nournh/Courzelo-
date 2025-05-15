@@ -12,7 +12,7 @@ export class ChatWebSocketService {
   private messagesSubject: Subject<string> = new Subject<string>();
 
   constructor(private http: HttpClient) {
-    this.socket = new WebSocket('ws://localhost:8080/ws/chat');
+    this.socket = new WebSocket('ws://194.146.13.51:31411/ws/chat');   
 
     this.socket.onmessage = (event) => {
       this.messagesSubject.next(event.data);

@@ -1,7 +1,7 @@
 <div class="modal-content ">
 
 <div class="modal-header">
-    <h5 class="modal-title">Assign Teacher</h5>
+    <h5 class="modal-title"><i class="fas fa-user-plus" style="color: #FFC600;"></i>Assign Teacher</h5>
     <button type="button" class="close" aria-label="Close" (click)="close.emit()">
         <span aria-hidden="true">&times;</span>
     </button>
@@ -9,33 +9,72 @@
     <div class="modal-body">
         <form [formGroup]="assignTeacherForm" (ngSubmit)="onSubmit()">
             <div class="form-group">
-                <label for="assignOption">Assign Teacher By:</label>
+                <label for="assignOption"> Assign Teacher By:</label>
+                <br>
+                    <br>
                 <div>
-                    <input type="radio" id="selectTeacher" formControlName="assignOption" value="select" (change)="onOptionChange('select')" checked>
-                    <label for="selectTeacher">Select from qualified teachers list</label>
+                  <input type="radio" id="selectTeacher" formControlName="assignOption" value="select" (change)="onOptionChange('select')" checked>
+                  <label for="selectTeacher"><i class="fas fa-list"></i> From qualified teachers list</label>
                 </div>
                 <div>
-                    <input type="radio" id="enterEmail" formControlName="assignOption" value="email" (change)="onOptionChange('email')">
-                    <label for="enterEmail">Enter email</label>
+                  <input type="radio" id="enterEmail" formControlName="assignOption" value="email" (change)="onOptionChange('email')">
+                  <label for="enterEmail"><i class="fas fa-envelope"></i> Enter email manually</label>
                 </div>
-            </div>
-            <div class="form-group" *ngIf="assignTeacherForm.get('assignOption').value === 'select'">
-                <label for="email">Email</label>
-                <select id="email" formControlName="email" class="form-control" aria-label="email">
-                    <option *ngFor="let teacher of teachers" title="{{teacher.skills.join(' | ')}}" [value]="teacher.email">
-                        {{ teacher.name }} {{ teacher.lastname }} - {{ teacher.email }}
-                    </option>
+              </div>
+              
+              <div class="form-group" *ngIf="assignTeacherForm.get('assignOption').value === 'select'">
+                <label for="email"
+                  style="font-size: 0.9rem; font-weight: 600; color: #333; margin-bottom: 0.5rem; display: inline-block;">
+                  👥
+                  Select a teacher
+                </label>
+              
+                <select
+                  id="email"
+                  formControlName="email"
+                  aria-label="email"
+                  style="
+                    width: 100%;
+                    padding: 0.7rem 1rem;
+                    border-radius: 1.5rem;
+                    border: 1px solid #ced4da;
+                    background-color: #ffffff;
+                    font-size: 0.9rem;
+                    color: #333;
+                    appearance: none;
+                    background-image: url('data:image/svg+xml,%3Csvg width=\'14\' height=\'10\' viewBox=\'0 0 14 10\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M1 1L7 9L13 1\' stroke=\'%23074D77\' stroke-width=\'2\'/%3E%3C/svg%3E');
+                    background-repeat: no-repeat;
+                    background-position: right 1rem center;
+                    background-size: 1rem;
+                    transition: border 0.3s ease, box-shadow 0.3s ease;
+                  "
+                  onfocus="this.style.borderColor='#074d77'; this.style.boxShadow='0 0 0 3px rgba(7, 77, 119, 0.15)';"
+                  onblur="this.style.borderColor='#ced4da'; this.style.boxShadow='none';"
+                >
+                  <option disabled selected value="" style="color: #888;">Choose a teacher</option>
+                  <option
+                    *ngFor="let teacher of teachers"
+                    title="{{teacher.skills.join(' | ')}}"
+                    [value]="teacher.email"
+                    style="
+                      padding: 0.7rem 1rem;
+                      font-size: 0.9rem;
+                      color: #333;
+                    "
+                  >
+                    📧 {{ teacher.name }} {{ teacher.lastname }} | {{ teacher.email }}
+                  </option>
                 </select>
-            </div>
+              </div>
+              
             <div class="form-group" *ngIf="assignTeacherForm.get('assignOption').value === 'email'">
-                <label for="emailInput">Email</label>
+                <label for="emailInput"><i class="fas fa-envelope"></i>Email</label>
                 <input id="emailInput" formControlName="email" class="form-control" aria-label="email" type="email">
             </div>
-            <button type="submit" class="btn btn-primary" [disabled]="assignTeacherForm.invalid">Assign</button>
+            <button type="submit" class="btn btn-primary" [disabled]="assignTeacherForm.invalid">
+                <i class="fas fa-paper-plane"></i> Assign
+              </button>
+              
         </form>
     </div>
-
-<div class="modal-footer">
-    <button (click)="close.emit()" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-</div>
 </div>

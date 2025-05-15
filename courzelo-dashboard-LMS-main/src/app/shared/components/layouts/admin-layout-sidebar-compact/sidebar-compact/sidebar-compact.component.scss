@@ -1,0 +1,30 @@
+
+.nav-item.active .nav-item-hold {
+    background-color: #FFC600;  /* Change la couleur de fond de l'élément actif */
+    border-radius: 50%;
+}
+
+.nav-item.active .nav-icon {
+    color:  rgb(7, 41, 77)
+    
+}
+
+.nav-item.active .nav-text {
+    font-weight: bold;  /* Met le texte en gras */
+    
+}
+
+.sidebar-left-secondary h6 {
+    font-size: 18px;
+    font-weight: 600;
+    color:  rgb(7, 41, 77); /* couleur dynamique */
+    margin: 10px 0;
+    text-transform: capitalize;
+    letter-spacing: 0.5px;
+    transition: color 0.3s ease;
+  }
+  
+  .sidebar-left-secondary h6:hover {
+    color: #FFC600;
+  }
+  

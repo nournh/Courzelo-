@@ -1,58 +1,195 @@
-.icon-enabled {
-  transition: color 0.3s ease;
+// Variables
+$color-primary: #218838;
+$color-danger: #dc3545;
+$color-warning: #ffc107;
+$color-info: #17a2b8;
+$color-light: #f8f9fa;
+$color-dark: #343a40;
+$color-muted: #6c757d;
+$transition-time: 0.3s;
+$border-radius: 8px;
+$input-bg: #fff;
+$input-border: #ced4da;
+
+// Mixins
+@mixin transition($props...) {
+  transition: $props $transition-time ease;
 }
 
-.icon-disabled {
-  transition: color 0.3s ease;
-  position: relative;
+// Search Bar
+.input-group {
+  .form-control {
+    border-radius: $border-radius;
+    padding-right: 2.5rem;
+    background-color: $input-bg;
+    border: 1px solid $input-border;
+    @include transition(all);
+
+    &:focus {
+      border-color: $color-primary;
+      box-shadow: 0 0 0 0.2rem rgba($color-primary, 0.25);
+    }
+  }
+
+  .search-icon {
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: $color-muted;
+    font-size: 1.1rem;
+  }
 }
 
-.icon-enabled:hover {
-  color: #218838; /* Darker green for enabled */
-}
-
-.icon-disabled:hover {
-  color: white; /* Texte blanc pour la lisibilité */
-}
-
-.icon-disabled:hover::after {
-  content: "Disabled";
-  position: absolute;
-  top: -25px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: black;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-size: 12px;
-  white-space: nowrap;
-  opacity: 1;
-  transition: opacity 0.3s ease-in-out;
-}
-
-.icon-banned:hover {
-  color: #c82333; /* Darker red for banned */
-}
-.status-tags span {
-  cursor: pointer; /* Ensures the cursor changes */
-}
-
-.status-tags span:hover {
-  color: black !important; /* Makes the icon black when hovered */
-}
-.status-tags {
+// Export Button
+.export-btn {
   display: flex;
-  gap: 10px;
   align-items: center;
-}
-.status-tags span:hover {
-  color: black; /* Change icon color on hover */
-}
-.action-buttons button {
-  margin-right: 8px; /* Espace entre les boutons */
+  gap: 5px;
+  border-radius: $border-radius;
+  @include transition(all);
+
+  i {
+    font-size: 1rem;
+  }
+
+  &:hover {
+    background-color: darken($color-primary, 5%);
+  }
 }
 
-.action-buttons button:last-child {
-  margin-right: 0; /* Pas de marge pour le dernier bouton */
+// Table Styles
+ngx-datatable {
+  border-radius: $border-radius;
+  overflow: hidden;
+  background: $color-light;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.06);
+
+  .datatable-header {
+    font-weight: 600;
+    background: #f1f1f1;
+  }
+
+  .datatable-body-row {
+    &:hover {
+      background-color: #f9f9f9;
+    }
+  }
+
+  .datatable-body-cell {
+    vertical-align: middle;
+    font-size: 0.95rem;
+  }
+}
+
+// Role Tags
+.role-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+// Status Tags & Icons
+.status-tags  {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .status-icon {
+    cursor: pointer;
+    font-size: 1.3rem;
+    @include transition(color);
+
+    &:hover {
+      color: $color-dark;
+    }
+  }
+}
+
+// Action Buttons
+.action-buttons {
+  display: flex;
+  gap: 6px;
+
+  .btn {
+    border-radius: $border-radius;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 8px;
+    font-size: 0.85rem;
+
+    i {
+      font-size: 1rem;
+    }
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+
+  .btn-info {
+    background-color: $color-info;
+    border-color: $color-info;
+  }
+
+  .btn-warning {
+    background-color: $color-warning;
+    border-color: $color-warning;
+    color: $color-dark;
+  }
+
+  .btn-danger {
+    background-color: $color-danger;
+    border-color: $color-danger;
+  }
+}
+
+// Pagination Controls
+.pagination-container {
+  .pagination-controls {
+    .ngx-pagination {
+      display: flex;
+      gap: 5px;
+
+      li {
+        a, span {
+          border-radius: 50%;
+          padding: 8px 12px;
+          border: 1px solid #dee2e6;
+          color: $color-dark;
+          cursor: pointer;
+          @include transition(all);
+
+          &:hover {
+            background-color: $color-primary;
+            color: $color-light;
+          }
+
+          &.current {
+            background-color: $color-primary;
+            color: $color-light;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Modal Backdrop
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+// Optional: Responsive improvements
+@media (max-width: 768px) {
+  .input-group {
+    .form-control {
+      padding-right: 2rem;
+    }
+  }
+
+  .action-buttons {
+    flex-wrap: wrap;
+  }
 }

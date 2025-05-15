@@ -1,0 +1,139 @@
+<div class="challenge-list-container">
+    <div class="challenge-header">
+      <h1>Assigned Challenges</h1>
+      <p class="subtitle">View challenges assigned to candidates</p>
+    </div>
+  
+    <!-- Filters Section -->
+    <div class="filters-section">
+      <div class="search-container">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input 
+            type="text" 
+            [formControl]="searchControl"
+            placeholder="Search by title, description or skills..."
+            class="search-input"
+          >
+        </div>
+      </div>
+  
+      <div class="filter-controls">
+        <div class="filter-group">
+          <label for="difficultyFilter">Difficulty</label>
+          <select 
+            id="difficultyFilter" 
+            [formControl]="difficultyFilter"
+            class="filter-select"
+          >
+            <option value="">All Levels</option>
+            <option *ngFor="let option of difficultyOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="skillsFilter">Skills</label>
+          <select 
+            id="skillsFilter" 
+            [formControl]="skillsFilter"
+            class="filter-select"
+          >
+            <option value="">All Skills</option>
+            <option *ngFor="let option of skillsOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+  
+        <div class="results-count">
+          <span class="count">{{ filteredChallenges.length }}</span> of 
+          <span class="total">{{ allChallenges.length }}</span> challenges
+        </div>
+      </div>
+    </div>
+  
+    <!-- Status Indicators -->
+    <div *ngIf="loading" class="status-indicator loading">
+      <div class="spinner"></div>
+      <span>Loading challenges...</span>
+    </div>
+    
+    <div *ngIf="error" class="status-indicator error">
+      <span class="icon">⚠️</span>
+      <span>{{ error }}</span>
+    </div>
+  
+    <!-- Empty State -->
+    <div *ngIf="!loading && filteredChallenges.length === 0" class="status-indicator empty">
+      <span class="icon">🔍</span>
+      <div>
+        <h3>No assigned challenges found</h3>
+        <p>Try adjusting your filters or search terms</p>
+      </div>
+    </div>
+  
+    <!-- Challenges Grid -->
+    <div class="challenges-grid">
+      <div *ngFor="let challenge of filteredChallenges" class="challenge-card">
+        <div class="card-header">
+          <div class="title-wrapper">
+            <h3>{{ challenge.title }}</h3>
+            <div class="company-name" *ngIf="challenge.business?.companyName">
+              <span class="company-icon">🏢</span>
+              {{ challenge.business.companyName }}
+            </div>
+            <span class="difficulty-badge" [class]="'difficulty-' + (challenge.difficulty?.toLowerCase() || 'medium')">
+              {{ challenge.difficulty || 'Medium' }}
+            </span>
+          </div>
+          <div class="meta-info">
+            <div class="assigned-candidates" *ngIf="getAssignedCandidatesArray(challenge).length > 0">
+                <span class="assigned-icon">👤</span>
+                <span class="assigned-text">
+                  Assigned to: {{ formatAssignedCandidates(challenge) }}
+                </span>
+              </div>
+            <span class="meta-item" *ngIf="challenge.estimatedTime">
+              ⏱️ {{ challenge.estimatedTime }}
+            </span>
+            <span class="meta-item" *ngIf="challenge.points">
+              🏆 {{ challenge.points }} pts
+            </span>
+          </div>
+        </div>
+        
+        <div class="card-content">
+          <p class="challenge-description">{{ challenge.description }}</p>
+  
+          <!-- Skills Section -->
+          <div *ngIf="challenge.requiredSkills?.length" class="skills-section">
+            <h4>Required Skills</h4>
+            <div class="skills-tags">
+              <span *ngFor="let skill of challenge.requiredSkills" class="skill-tag">
+                {{ skill }}
+              </span>
+            </div>
+          </div>
+  
+          <!-- Tasks Section -->
+          <div *ngIf="getTasks(challenge).length" class="tasks-section">
+            <h4>Questions</h4>
+            <div class="task-list">
+              <div *ngFor="let task of getTasks(challenge)" class="task-item">
+                <div class="task-question">
+                  <span class="task-icon">❓</span>
+                  <span>{{ task.question }}</span>
+                </div>
+                <div *ngIf="task.hint" class="task-hint">
+                  <span class="hint-icon">💡</span>
+                  <span>{{ task.hint }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

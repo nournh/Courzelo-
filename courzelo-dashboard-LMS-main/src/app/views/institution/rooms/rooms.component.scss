@@ -1,0 +1,94 @@
+/* General container styling */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Heading styling */
+h2 {
+ text-align: center;
+  color: #333;
+  font-size: 28px; /* Légèrement augmenté pour plus de présence */
+  margin-bottom: 20px;
+  font-family: 'Roboto', sans-serif; /* Ajout d'une police propre et lisible */
+  font-weight: 600; /* Rend le texte plus marqué */
+  letter-spacing: 0.5px; /* Un léger espacement pour l’élégance */
+}
+
+/* Form group to align input and button */
+.form-group {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+/* Input styling */
+.room-input {
+  width: 60%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.room-input:focus {
+  border-color: #FFD700;
+}
+
+/* Button styling */
+.add-btn {
+  padding: 10px 15px;
+  background-color:rgb(7, 41, 77);
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.add-btn:hover {
+  background-color: #FFC600;
+}
+
+/* List of rooms */
+.room-list {
+  list-style-type: none;
+  padding-left: 0;
+  margin-top: 20px;
+}
+
+/* Styling for each room item */
+.room-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  margin: 10px 0;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-size: 18px;
+}
+
+/* Delete button styling */
+.delete-btn {
+  padding: 5px 10px;
+  background-color: #dc3545;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.delete-btn:hover {
+  background-color: #FFC600;
+}

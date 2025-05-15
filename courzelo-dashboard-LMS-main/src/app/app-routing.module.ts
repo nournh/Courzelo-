@@ -4,8 +4,8 @@ import { AuthLayoutComponent } from './shared/components/layouts/auth-layout/aut
 import { AuthGuard } from './shared/services/auth-guard.service';
 import { BlankLayoutComponent } from './shared/components/layouts/blank-layout/blank-layout.component';
 import { AdminLayoutSidebarCompactComponent } from './shared/components/layouts/admin-layout-sidebar-compact/admin-layout-sidebar-compact.component';
-
-
+import { AddChallengeComponent } from './views/Business/add-challenge/add-challenge.component';
+import { DisplayChallengesComponent } from './views/Business/display-challenges/display-challenges.component';
 import {NoAuthGuard} from './shared/services/no-auth.guard';
 import { DashboardProjectComponent } from './shared/components/Project/Admin/dashboard-project/dashboard-project.component';
 import { AddProjectComponent } from './shared/components/Project/Admin/add-project/add-project.component';
@@ -24,8 +24,19 @@ import { ParticipateRevisionComponent } from './shared/components/Revision/User/
 import { QuizrevisionComponent } from './shared/components/Revision/User/quizrevision/quizrevision.component';
 import { EditComponent } from './views/institution/edit/edit.component';
 import { UserEditComponent } from './views/tools/users/user-edit/user-edit.component';
-
-
+import { AddJobDialogComponent } from './views/Business/add-job-dialog/add-job-dialog.component';
+import { ApplyJobComponent } from './views/Business/apply-job/apply-job.component';
+import { JobOffersComponent } from './views/Business/job-offers/job-offers.component';
+import { UpdJobDialogComponent } from './views/Business/upd-job-dialog/upd-job-dialog.component';
+import { ViewApplicationsDialogComponent } from './views/Business/view-applications-dialog/view-applications-dialog.component';
+import { ViewJobDialogComponent } from './views/Business/view-job-dialog/view-job-dialog.component';
+import { CandidateJobComponent } from './views/Business/candidate-job/candidate-job.component';
+import { AssignedChallengesComponent } from './views/Business/assigned-challenges/assigned-challenges.component';
+import { CandidateApplicationsComponent } from './views/Business/candidate-applications/candidate-applications.component';
+import { AssignTestDialogComponent } from './views/Business/assign-test-dialog/assign-test-dialog.component';
+import { MyChallengesComponent } from './views/Business/my-challenges/my-challenges.component';
+import { ViewSubmissionsComponent } from './views/Business/view-submissions/view-submissions.component';
+import { AddTestComponent } from './views/Business/add-test/add-test.component';
 const userRoutes: Routes = [
     {
       path: 'dashboard',
@@ -140,8 +151,26 @@ const userRoutes: Routes = [
      { path: 'QandA/:id', component: QuizrevisionComponent , canActivate: [AuthGuard]}, // user
   
       { path: 'edit-user/:id', component: UserEditComponent},
-  
-    
+        //PROFESSIONAL 
+      { path: 'jobOffers', component: JobOffersComponent  },
+      { path: 'CandidateJob', component: CandidateJobComponent  },
+      { path: 'apply-job/:idJob/:idCandidate', component: ApplyJobComponent }, // <-- your route
+       { path: 'assigned-challenges', component: AssignedChallengesComponent },
+  { path: 'Myapplications', component: CandidateApplicationsComponent },
+    { path: 'add-test', component: AddTestComponent },
+      {
+        path: 'view-applications/:id',component: ViewApplicationsDialogComponent },
+       
+        { path: 'add-test/:idJob', component: AssignTestDialogComponent },
+        { path: 'addChallenge', component: AddChallengeComponent },
+        { path: 'challenges', component: DisplayChallengesComponent },
+        {
+          path: 'recruiter/challenges',component: MyChallengesComponent
+        },
+
+    {  path:  'challenges/:challengeId/submissions',component: ViewSubmissionsComponent},
+     
+
     {
         path: 'settings',
         loadChildren: () => import('./views/settings/settings.module').then(m => m.SettingsModule)

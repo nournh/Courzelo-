@@ -1,0 +1,106 @@
+<div class="card o-hidden" [@animate]="{value:'*',params:{y:'120px',opacity:'0',delay:'100ms', duration: '400ms'}}">
+    <div class="row">
+      <!-- Left side image and sign-in button -->
+      <div class="col-md-6 text-center" style="background-size: cover;background-image: url(./assets/images/photo-long-3.jpg)">
+        <div class="pl-3 auth-right">
+          <div class="auth-logo text-center mt-4">
+            <img src="assets/images/logo.png" alt="">
+          </div>
+          <div class="flex-grow-1"></div>
+          <div class="w-100 mb-4">
+            <button class="btn btn-outline-primary btn-outline-email btn-block btn-icon-text btn-rounded" routerLink="/sessions/signin">
+              <i class="i-Mail-with-At-Sign"></i>
+              Sign in with Email
+            </button>
+          </div>
+          <div class="flex-grow-1"></div>
+        </div>
+      </div>
+  
+      <!-- Right side form -->
+      <div class="col-md-6">
+        <div class="p-4">
+          <h1 class="mb-3 text-18">Sign Up</h1>
+          <form [formGroup]="recruiterForm" (ngSubmit)="onSubmit()">
+            
+            <!-- Business Fields -->
+            <div class="form-group">
+              <label for="email">Email *</label>
+              <input id="email" formControlName="email" class="form-control" type="email" />
+            </div>
+  
+            <div class="form-group">
+              <label for="password">Password *</label>
+              <input id="password" formControlName="password" class="form-control" type="password" />
+            </div>
+  
+            <div class="form-group">
+              <label for="matchingPassword">Confirm Password *</label>
+              <input id="matchingPassword" formControlName="matchingPassword" class="form-control" type="password" />
+            </div>
+  
+            <div class="form-group">
+              <label for="name">First Name *</label>
+              <input id="name" formControlName="name" class="form-control" type="text" />
+            </div>
+  
+            <div class="form-group">
+              <label for="lastname">Last Name *</label>
+              <input id="lastname" formControlName="lastname" class="form-control" type="text" />
+            </div>
+  
+       
+  
+            <div class="form-group">
+              <label for="country">Country *</label>
+              <select id="country" formControlName="country" class="form-control">
+                <option *ngFor="let country of countries" [value]="country">{{ country }}</option>
+              </select>
+            </div>
+  
+            <div class="form-group">
+              <label for="specialty">Specialty *</label>
+              <input id="specialty" formControlName="specialty" class="form-control" type="text" />
+            </div>
+  
+            <!-- AuthBusiness Fields -->
+            <div class="form-group">
+              <label for="companyName">Company Name *</label>
+              <input id="companyName" formControlName="companyName" class="form-control" type="text" />
+            </div>
+  
+            <div class="form-group">
+              <label for="website">Website</label>
+              <input id="website" formControlName="website" class="form-control" type="text" />
+            </div>
+  
+            <div class="form-group">
+              <label for="nbEmployee">Number of Employees</label>
+              <input id="nbEmployee" formControlName="nbEmployee" class="form-control" type="number" />
+            </div>
+  
+         
+  
+            <div class="form-group">
+              <label for="recrutementRole">Role in the Hiring Process</label>
+              <input id="recrutementRole" formControlName="recrutementRole" class="form-control" type="text" />
+            </div>
+  
+            <div class="form-group">
+              <label for="phone">Phone</label>
+              <input id="phone" formControlName="phone" class="form-control" type="text" />
+            </div>
+  
+            <div class="form-group">
+              <label for="industry">Industry</label>
+              <input id="industry" formControlName="industry" class="form-control" type="text" />
+            </div>
+  
+  
+            <button type="submit" [disabled]="recruiterForm.invalid" class="btn btn-primary">Register</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  

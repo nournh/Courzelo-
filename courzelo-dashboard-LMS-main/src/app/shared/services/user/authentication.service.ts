@@ -12,6 +12,7 @@ import {ResponseHandlerService} from './response-handler.service';
 import {map, tap} from 'rxjs/operators';
 import {UserService} from './user.service';
 import {NavigationService} from '../navigation.service';
+import { SignupB } from '../../models/user/requests/SignupB';
 
 
 @Injectable({
@@ -30,6 +31,9 @@ export class AuthenticationService {
 
   register(signupRequest: SignupRequest) {
     return this.http.post<StatusMessageResponse>(`${this.baseUrl}/signup`, signupRequest);
+  }
+  signupProfessional(data: SignupB): Observable<StatusMessageResponse> {
+    return this.http.post<StatusMessageResponse>(`${this.baseUrl}/signupB`, data);
   }
 
   login(loginRequest: LoginRequest): Observable<LoginResponse> {

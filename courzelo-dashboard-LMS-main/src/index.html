@@ -9,23 +9,24 @@
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link href="https://fonts.googleapis.com/css?family=Nunito:300,400,400i,600,700,800,900" rel="stylesheet">
-    <script
-      async
-      defer
-      src="https://apis.google.com/js/api.js"
-      onload="gapiLoaded()"
-    ></script>
-    <script
-      async
-      defer
-      src="https://accounts.google.com/gsi/client"
-      onload="gisLoaded()"
-    ></script>
-    <script
-      type="text/javascript"
-      src="./assets/scripts/googleEvent.js"
-    ></script>
+    
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 
+    <!-- Inclure votre fichier javascript pour les événements Google -->
+    <script type="text/javascript" src="./assets/scripts/googleEvent.js"></script>
+
+    <script>
+      function gapiLoaded() {
+        console.log('Google API loaded');
+        // Placez ici votre code qui doit s'exécuter après que l'API Google soit chargée
+      }
+
+      function gisLoaded() {
+        console.log('Google Identity Services loaded');
+        // Placez ici votre code qui doit s'exécuter après que GSI soit chargé
+      }
+    </script>
 </head>
 
 <body class="text-left">
@@ -35,7 +36,6 @@
             <div class="loader-bubble loader-bubble-primary d-block"></div>
         </div>
     </app-root>
-
 </body>
 
 </html>

@@ -1,0 +1,108 @@
+<app-businessnavbar></app-businessnavbar>
+
+<div id="preloader" class="table-responsive">
+  <div class="section-title mt-50">
+    <h3>Job Offers</h3>
+  </div>
+
+  <div class="row align-items-start flex-wrap">
+    <!-- Search Bar -->
+    <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
+      <div class="search-bar">
+        <input type="text" (keyup)="doFilter($any($event.target).value)" placeholder="Search Job Offers">
+      </div>
+    </div>
+  
+    <!-- Filters beside search -->
+    <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+      <div class="filters d-flex gap-3">
+        <div class="filter-section status-filter">
+          <h4>Status</h4>
+          <p>
+            <input type="radio" name="status" value="open" (change)="check()"> Open
+            <input type="radio" name="status" value="close" (change)="check()"> Closed
+          </p>
+        </div>
+        <div class="filter-section date-filter">
+          <h4>Date Created</h4>
+          <input type="date" [(ngModel)]="startDate" (change)="filterPeriod()"> to
+          <input type="date" [(ngModel)]="endDate" (change)="filterPeriod()">
+        </div>
+      </div>
+    </div>
+  
+    <!-- Add Job Button -->
+    <div class="add col-lg-2 col-md-12 d-flex justify-content-end align-items-center mb-3">
+      <button class="add-btn" (click)="AddJobDialog()">
+        <i class="fas fa-plus-circle"></i> Post New Job Offer
+      </button>
+    </div>
+  </div>
+  
+
+  <div class="job-offers-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Creation Date</th>
+          <th>Location Type</th>
+          <th>Location</th>
+          <th>Requirement</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let jobOffer of pagedJobOffers" class="paged-item">
+          <td>{{ jobOffer.title || '----' }}</td>
+          <td>{{ jobOffer.creationDate | date:'MM-dd-yyyy' || '----' }}</td>
+          <td>{{ jobOffer.locationType || '----' }}</td>
+          <td>{{ jobOffer.location || '----' }}</td>
+          <td>{{ jobOffer.requirement || '----' }}</td>
+          <td class="action-btns">
+            <button class="btn-view" (click)="ViewJob(jobOffer)"></button>
+            <button class="btn-edit" (click)="UpdJob(jobOffer)"></button>
+            <button class="btn-delete" (click)="DeleteJob(jobOffer)"></button>
+            <button class="btn-view" (click)="viewApplications(jobOffer)">View Applications</button>
+            <button class="btn-Add" (click)="goToAddTest(jobOffer.idJob)">Add Test</button>
+          </td>
+        </tr>
+        <!-- Moved inside tbody so it renders correctly -->
+        <tr *ngIf="pagedJobOffers.length === 0">
+          <td colspan="6" class="text-center">No job offers found</td>
+        </tr>
+      </tbody>
+    </table>
+  
+    <!-- Pagination Controls -->
+ <!-- Pagination Controls -->
+<div class="pagination-controls mt-3" 
+*ngIf="filteredJobOffers.length > pageSize"
+style="display: flex; justify-content: center; align-items: center; gap: 10px; margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+
+<button (click)="changePage(currentPage - 1)" 
+     [disabled]="currentPage === 1"
+     style="min-width: 40px; height: 40px; padding: 0 15px; border: 2px solid #2c3e50; background: white; color: #2c3e50; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+<i class="fas fa-chevron-left"></i>
+<span>Previous</span>
+</button>
+
+<button *ngFor="let page of totalPagesArray" 
+     (click)="changePage(page)"
+     [style.background]="currentPage === page ? '#022344' : 'white'"
+     [style.color]="currentPage === page ? 'white' : '#022344'"
+     [style.border-color]="currentPage === page ? '#022344' : '#022344'"
+     style="min-width: 40px; height: 40px; padding: 0 15px; border: 2px solid; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+{{ page }}
+</button>
+
+<button (click)="changePage(currentPage + 1)" 
+     [disabled]="currentPage === totalPages"
+     style="min-width: 40px; height: 40px; padding: 0 15px; border: 2px solid #022344; background: white; color: #2c3e50; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+<span>Next</span>
+<i class="fas fa-chevron-right"></i>
+</button>
+</div>
+    
+  </div>
+  

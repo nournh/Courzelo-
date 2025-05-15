@@ -8,6 +8,7 @@ import {ElementModule} from '../../models/Timetable/ElementModule';
 })
 export class TimetableService {
   private baseUrl = 'http://localhost:8080/api/TimeTable';
+  private apiUrl = 'http://localhost:8080/assignements';
 
   constructor(private http: HttpClient) {
   }
@@ -44,4 +45,8 @@ export class TimetableService {
   public downloadGeneratedExcelFile(): Observable<Blob> {
     return this.http.get(this.baseUrl + '/download', { responseType: 'blob' });
   }
+  assignTeachersToGroup(groupId: string, teacherIds: string[]): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${groupId}/assignTeachers`, teacherIds);
+  }
+  
 }

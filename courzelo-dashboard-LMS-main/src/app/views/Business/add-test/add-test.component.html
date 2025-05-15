@@ -1,0 +1,378 @@
+<div class="test-management-container">
+  <!-- Tabs Navigation -->
+  <div class="tabs-nav">
+    <button [class.active]="activeTab === 'prehiring'" (click)="switchTab('prehiring')">
+      <i class="fas fa-clipboard-list"></i> Prehiring Tests
+    </button>
+    <button [class.active]="activeTab === 'psychotechnic'" (click)="switchTab('psychotechnic')">
+      <i class="fas fa-brain"></i> Psychotechnic Tests
+    </button>
+  </div>
+
+  <!-- Prehiring Tests Section -->
+  <section *ngIf="activeTab === 'prehiring'" class="test-section">
+    <!-- Loading State -->
+    <div *ngIf="loadingPrehiringTests" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading prehiring tests...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="errorLoadingPrehiring" class="error-state">
+      <i class="fas fa-exclamation-triangle"></i>
+      <p>{{ errorLoadingPrehiring }}</p>
+      <button class="btn-primary" (click)="loadTests()">Retry</button>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loadingPrehiringTests && !errorLoadingPrehiring && prehiringTests.length === 0 && !showForm" class="empty-state">
+      <i class="fas fa-inbox"></i>
+      <p>No prehiring tests found</p>
+      <button class="btn-primary" (click)="startNewPrehiringTest()">Create New Test</button>
+    </div>
+
+    <!-- Test List -->
+    <div *ngIf="!loadingPrehiringTests && !errorLoadingPrehiring && prehiringTests.length > 0 && !showForm" class="test-table-container">
+      <div class="table-header">
+        <h2>Prehiring Tests</h2>
+        <button class="btn-primary" (click)="startNewPrehiringTest()">
+          <i class="fas fa-plus"></i> New Test
+        </button>
+      </div>
+      
+      <div class="table-responsive">
+        <table class="test-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Description</th>
+              <th>Questions</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let test of prehiringTests" class="test-row">
+              <td class="test-title">
+                <strong>{{ test.title }}</strong>
+              </td>
+              <td class="test-description">
+                {{ test.intro || 'No description provided' }}
+              </td>
+              <td class="test-questions">
+                {{ test.questions?.length || 0 }} questions
+              </td>
+              <td class="test-actions">
+                <button class="btn-edit" (click)="editPrehiringTest(test)">
+                  <i class="fas fa-edit"></i> Edit
+                </button>
+                <button class="btn-delete" (click)="deletePrehiringTest(test.idPrehiringTest)">
+                  <i class="fas fa-trash-alt"></i> Delete
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Test Form -->
+    <form *ngIf="showForm && activeTab === 'prehiring'" [formGroup]="testForm.get('prehiring')" (ngSubmit)="submitTest()" class="test-form">
+      <div class="form-header">
+        <h2>{{ editingTest ? 'Edit' : 'Create' }} Prehiring Test</h2>
+        <button type="button" class="btn-close" (click)="cancelEdit()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="prehiring-title">Test Title</label>
+          <input id="prehiring-title" formControlName="title" placeholder="Enter test title">
+          <div *ngIf="testForm.get('prehiring.title')?.invalid && testForm.get('prehiring.title')?.touched" class="error-message">
+            Title is required
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="prehiring-intro">Introduction Text</label>
+          <textarea id="prehiring-intro" formControlName="intro" rows="3" placeholder="Enter test description"></textarea>
+          <div *ngIf="testForm.get('prehiring.intro')?.invalid && testForm.get('prehiring.intro')?.touched" class="error-message">
+            Introduction is required
+          </div>
+        </div>
+        
+        <div class="form-group checkbox-group">
+          <label>
+            <input type="checkbox" formControlName="randomOrder">
+            <span class="checkmark"></span>
+            Randomize Question Order
+          </label>
+        </div>
+      </div>
+
+      <div class="questions-section">
+        <h3>Questions <span class="badge">{{ prehiringQuestions.controls.length }}</span></h3>
+        
+        <div formArrayName="questions" class="question-list">
+          <div *ngFor="let question of prehiringQuestions.controls; let i = index" [formGroupName]="i" class="question-card">
+            <div class="question-header">
+              <h4>Question #{{i + 1}}</h4>
+              <button type="button" class="btn-remove" (click)="removeQuestion(i)" [disabled]="prehiringQuestions.length <= 1">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+            
+            <div class="question-body">
+              <div class="form-group">
+                <input formControlName="questionLabel" placeholder="Enter question text">
+                <div *ngIf="question.get('questionLabel')?.invalid && question.get('questionLabel')?.touched" class="error-message">
+                  Question text is required
+                </div>
+              </div>
+              
+              <div class="question-meta">
+                <div class="form-group">
+                  <select formControlName="typeQ">
+                    <option value="">Select question type</option>
+                    <option value="multiple">Multiple Choice</option>
+                    <option value="single">Single Choice</option>
+                    <option value="text">Text Answer</option>
+                  </select>
+                  <div *ngIf="question.get('typeQ')?.invalid && question.get('typeQ')?.touched" class="error-message">
+                    Question type is required
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <input formControlName="score" type="number" placeholder="Points" min="1">
+                  <div *ngIf="question.get('score')?.invalid && question.get('score')?.touched" class="error-message">
+                    Valid points are required (min 1)
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <input formControlName="time" type="number" placeholder="Time (seconds)" min="1">
+                  <div *ngIf="question.get('time')?.invalid && question.get('time')?.touched" class="error-message">
+                    Valid time is required (min 1 second)
+                  </div>
+                </div>
+              </div>
+              
+              <div formArrayName="responses" class="responses-list">
+                <h5>Possible Answers <small>(check correct ones)</small></h5>
+                
+                <div *ngFor="let response of getPrehiringResponses(i).controls; let j = index" [formGroupName]="j" class="response-item">
+                  <label class="response-label">
+                    <input type="checkbox" formControlName="state" class="state-checkbox">
+                    <span class="custom-checkbox"></span>
+                    <input formControlName="label" placeholder="Answer text">
+                  </label>
+                  <button type="button" class="btn-remove-response" (click)="removeResponseFromQuestion(i, j)" [disabled]="getPrehiringResponses(i).length <= 1">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+                
+                <button type="button" class="btn-add-response" (click)="addResponseToQuestion(i)">
+                  <i class="fas fa-plus"></i> Add Answer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <button type="button" class="btn-add-question" (click)="addPrehiringQuestion()">
+          <i class="fas fa-plus-circle"></i> Add Question
+        </button>
+      </div>
+      
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="cancelEdit()">Cancel</button>
+        <button type="submit" class="btn-primary" [disabled]="!isFormValid()">
+          {{ editingTest ? 'Update' : 'Create' }} Test
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Psychotechnic Tests Section -->
+  <section *ngIf="activeTab === 'psychotechnic'" class="test-section">
+    <!-- Loading State -->
+    <div *ngIf="loadingPsychotechnicTests" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading psychotechnic tests...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="errorLoadingPsychotechnic" class="error-state">
+      <i class="fas fa-exclamation-triangle"></i>
+      <p>{{ errorLoadingPsychotechnic }}</p>
+      <button class="btn-primary" (click)="loadTests()">Retry</button>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loadingPsychotechnicTests && !errorLoadingPsychotechnic && psychotechnicTests.length === 0 && !showForm" class="empty-state">
+      <i class="fas fa-inbox"></i>
+      <p>No psychotechnic tests found</p>
+      <button class="btn-primary" (click)="startNewPsychotechnicTest()">Create New Test</button>
+    </div>
+
+    <!-- Test List -->
+    <div *ngIf="!loadingPsychotechnicTests && !errorLoadingPsychotechnic && psychotechnicTests.length > 0 && !showForm" class="test-table-container">
+      <div class="table-header">
+        <h2>Psychotechnic Tests</h2>
+        <button class="btn-primary" (click)="startNewPsychotechnicTest()">
+          <i class="fas fa-plus"></i> New Test
+        </button>
+      </div>
+      
+      <div class="table-responsive">
+        <table class="test-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Description</th>
+              <th>Questions</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let test of psychotechnicTests" class="test-row">
+              <td class="test-title">
+                <strong>{{ test.title }}</strong>
+              </td>
+              <td class="test-description">
+                {{ test.intro || 'No description provided' }}
+              </td>
+              <td class="test-questions">
+                {{ test.questionspsycho?.length || 0 }} questions
+              </td>
+              <td class="test-actions">
+                <button class="btn-edit" (click)="editPsychotechnicTest(test)">
+                  <i class="fas fa-edit"></i> Edit
+                </button>
+                <button class="btn-delete" (click)="deletePsychotechnicTest(test.idPsychotechnicTest)">
+                  <i class="fas fa-trash-alt"></i> Delete
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Psychotechnic Test Form -->
+    <form *ngIf="showForm && activeTab === 'psychotechnic'" [formGroup]="testForm.get('psychotechnic')" (ngSubmit)="submitTest()" class="test-form">
+      <div class="form-header">
+        <h2>{{ editingTest ? 'Edit' : 'Create' }} Psychotechnic Test</h2>
+        <button type="button" class="btn-close" (click)="cancelEdit()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="psychotechnic-title">Test Title</label>
+          <input id="psychotechnic-title" formControlName="title" placeholder="Enter test title">
+          <div *ngIf="testForm.get('psychotechnic.title')?.invalid && testForm.get('psychotechnic.title')?.touched" class="error-message">
+            Title is required
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="psychotechnic-intro">Introduction Text</label>
+          <textarea id="psychotechnic-intro" formControlName="intro" rows="3" placeholder="Enter test description"></textarea>
+          <div *ngIf="testForm.get('psychotechnic.intro')?.invalid && testForm.get('psychotechnic.intro')?.touched" class="error-message">
+            Introduction is required
+          </div>
+        </div>
+        
+        <div class="form-group checkbox-group">
+          <label>
+            <input type="checkbox" formControlName="randomOrder">
+            <span class="checkmark"></span>
+            Randomize Question Order
+          </label>
+        </div>
+      </div>
+
+      <div class="questions-section">
+        <h3>Questions <span class="badge">{{ psychotechnicQuestions.controls.length }}</span></h3>
+        
+        <div formArrayName="questions" class="question-list">
+          <div *ngFor="let question of psychotechnicQuestions.controls; let i = index" [formGroupName]="i" class="question-card">
+            <div class="question-header">
+              <h4>Question #{{i + 1}}</h4>
+              <button type="button" class="btn-remove" (click)="removeQuestion(i)" [disabled]="psychotechnicQuestions.length <= 1">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+            
+            <div class="question-body">
+              <div class="form-group">
+                <input formControlName="questionpsychoLabel" placeholder="Enter question text">
+                <div *ngIf="question.get('questionpsychoLabel')?.invalid && question.get('questionpsychoLabel')?.touched" class="error-message">
+                  Question text is required
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <select formControlName="typeQ">
+                  <option value="">Select question type</option>
+                  <option value="cognitive">Cognitive</option>
+                  <option value="personality">Personality</option>
+                  <option value="aptitude">Aptitude</option>
+                </select>
+                <div *ngIf="question.get('typeQ')?.invalid && question.get('typeQ')?.touched" class="error-message">
+                  Question type is required
+                </div>
+              </div>
+              
+              <div class="responses-columns">
+                <div formArrayName="correctResponses" class="responses-list correct-responses">
+                  <h5>Correct Answers</h5>
+                  
+                  <div *ngFor="let response of getPsychotechnicCorrectResponses(i).controls; let j = index" [formGroupName]="j" class="response-item">
+                    <input formControlName="label" placeholder="Correct answer">
+                    <button type="button" class="btn-remove-response" (click)="removePsychotechnicCorrectResponse(i, j)" [disabled]="getPsychotechnicCorrectResponses(i).length <= 1">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                  
+                  <button type="button" class="btn-add-response" (click)="addPsychotechnicCorrectResponse(i)">
+                    <i class="fas fa-plus"></i> Add Correct Answer
+                  </button>
+                </div>
+                
+                <div formArrayName="falseResponses" class="responses-list false-responses">
+                  <h5>Incorrect Answers</h5>
+                  
+                  <div *ngFor="let response of getPsychotechnicFalseResponses(i).controls; let j = index" [formGroupName]="j" class="response-item">
+                    <input formControlName="label" placeholder="Incorrect answer">
+                    <button type="button" class="btn-remove-response" (click)="removePsychotechnicFalseResponse(i, j)" [disabled]="getPsychotechnicFalseResponses(i).length <= 1">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                  
+                  <button type="button" class="btn-add-response" (click)="addPsychotechnicFalseResponse(i)">
+                    <i class="fas fa-plus"></i> Add Incorrect Answer
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <button type="button" class="btn-add-question" (click)="addPsychotechnicQuestion()">
+          <i class="fas fa-plus-circle"></i> Add Question
+        </button>
+      </div>
+      
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="cancelEdit()">Cancel</button>
+        <button type="submit" class="btn-primary" [disabled]="!isFormValid()">
+          {{ editingTest ? 'Update' : 'Create' }} Test
+        </button>
+      </div>
+    </form>
+  </section>
+</div>

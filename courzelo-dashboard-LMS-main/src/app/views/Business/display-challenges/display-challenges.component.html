@@ -1,0 +1,264 @@
+<div class="challenge-list-container">
+  <div class="challenge-header">
+    <h1>Available Challenges</h1>
+    <p class="subtitle">Browse and submit solutions to unassigned challenges</p>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <div class="search-container">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input 
+          type="text" 
+          [formControl]="searchControl"
+          placeholder="Search by title, description or skills..."
+          class="search-input"
+        >
+      </div>
+    </div>
+
+    <div class="filter-controls">
+      <div class="filter-group">
+        <label for="difficultyFilter">Difficulty</label>
+        <select 
+          id="difficultyFilter" 
+          [formControl]="difficultyFilter"
+          class="filter-select"
+        >
+          <option value="">All Levels</option>
+          <option *ngFor="let option of difficultyOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="skillsFilter">Skills</label>
+        <select 
+          id="skillsFilter" 
+          [formControl]="skillsFilter"
+          class="filter-select"
+        >
+          <option value="">All Skills</option>
+          <option *ngFor="let option of skillsOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+
+      <div class="results-count">
+        <span class="count">{{ filteredChallenges.length }}</span> of 
+        <span class="total">{{ allChallenges.length }}</span> challenges
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Indicators -->
+  <div *ngIf="loading" class="status-indicator loading">
+    <div class="spinner"></div>
+    <span>Loading challenges...</span>
+  </div>
+  
+  <div *If="error" class="status-indicator error">
+    <span class="icon">⚠️</span>
+    <span>{{ error }}</span>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && filteredChallenges.length === 0" class="status-indicator empty">
+    <span class="icon">🔍</span>
+    <div>
+      <h3>No challenges found</h3>
+      <p>Try adjusting your filters or search terms</p>
+    </div>
+  </div>
+
+  <!-- Challenges Grid -->
+  <div class="challenges-grid">
+    <div *ngFor="let challenge of filteredChallenges" class="challenge-card" [class.expanded]="activeTabs[challenge.id]">
+      <div class="card-header">
+        <div class="title-wrapper">
+          <h3>{{ challenge.title }}</h3>
+          <div class="company-name" *ngIf="challenge.business?.companyName">
+            <span class="company-icon">🏢</span>
+            {{ challenge.business.companyName }}
+          </div>
+          <span class="difficulty-badge" [class]="'difficulty-' + (challenge.difficulty?.toLowerCase() || 'medium')">
+            {{ challenge.difficulty || 'Medium' }}
+          </span>
+          
+        </div>
+        <div class="meta-info">
+          <span class="meta-item" *ngIf="challenge.estimatedTime">
+            ⏱️ {{ challenge.estimatedTime }}
+          </span>
+          <span class="meta-item" *ngIf="challenge.points">
+            🏆 {{ challenge.points }} pts
+          </span>
+        </div>
+      </div>
+      
+      <div class="card-content">
+        <p class="challenge-description">{{ challenge.description }}</p>
+
+        <!-- Skills Section -->
+        <div *ngIf="challenge.requiredSkills?.length" class="skills-section">
+          <h4>Required Skills</h4>
+          <div class="skills-tags">
+            <span *ngFor="let skill of challenge.requiredSkills" class="skill-tag">
+              {{ skill }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Tasks Section -->
+        <div *ngIf="getTasks(challenge).length" class="tasks-section">
+          <h4>Questions</h4>
+          <div class="task-list">
+            <div *ngFor="let task of getTasks(challenge)" class="task-item">
+              <div class="task-question">
+                <span class="task-icon">❓</span>
+                <span>{{ task.question }}</span>
+              </div>
+              <div *ngIf="task.hint" class="task-hint">
+                <span class="hint-icon">💡</span>
+                <span>{{ task.hint }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submission Section -->
+      <div class="submission-section">
+        <!-- Default Add Submission Button -->
+        <button 
+          *ngIf="!activeTabs[challenge.id]"
+          class="add-submission-btn"
+          (click)="switchTab($event, 'text', challenge.id)"
+        >
+          <span class="btn-icon">+</span>
+          Add Submission
+        </button>
+
+        <!-- Submission Forms (when active) -->
+        <div *ngIf="activeTabs[challenge.id]" class="submission-forms">
+          <div class="form-tabs">
+            <button 
+              class="tab-btn" 
+              [class.active]="activeTabs[challenge.id] === 'text'"
+              (click)="switchTab($event, 'text', challenge.id)"
+            >
+              <span class="tab-icon">✏️</span>
+              Text Answer
+            </button>
+            <button 
+              class="tab-btn" 
+              [class.active]="activeTabs[challenge.id] === 'file'"
+              (click)="switchTab($event, 'file', challenge.id)"
+            >
+              <span class="tab-icon">📁</span>
+              File Upload
+            </button>
+            <button 
+              class="tab-btn cancel-btn"
+              (click)="cancelSubmission(challenge.id)"
+            >
+              <span class="tab-icon">✕</span>
+              Cancel
+            </button>
+          </div>
+
+          <!-- Text Submission Form -->
+          <form 
+            *ngIf="activeTabs[challenge.id] === 'text'" 
+            (ngSubmit)="submitText(challenge.id)" 
+            class="submission-form text-form"
+          >
+            <div class="form-group">
+              <label for="emailText-{{ challenge.id }}">Your Email</label>
+              <input 
+                type="email" 
+                id="emailText-{{ challenge.id }}"
+                [(ngModel)]="userInputs[challenge.id].email"
+                name="emailText-{{ challenge.id }}"
+                required
+                placeholder="Enter your email for confirmation"
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="answer-{{ challenge.id }}">Your Solution</label>
+              <textarea
+                id="answer-{{ challenge.id }}"
+                [(ngModel)]="userInputs[challenge.id].answer"
+                name="answer-{{ challenge.id }}"
+                placeholder="Write your detailed solution here..."
+                required
+                rows="6"
+              ></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn primary">
+              <span class="btn-icon">🚀</span>
+              Submit Solution
+            </button>
+          </form>
+
+          <!-- File Submission Form -->
+          <form 
+            *ngIf="activeTabs[challenge.id] === 'file'" 
+            (ngSubmit)="submitFile(challenge.id)" 
+            class="submission-form file-form"
+          >
+            <div class="form-group">
+              <label for="emailFile-{{ challenge.id }}">Your Email</label>
+              <input 
+                type="email" 
+                id="emailFile-{{ challenge.id }}"
+                [(ngModel)]="userInputs[challenge.id].email"
+                name="emailFile-{{ challenge.id }}"
+                required
+                placeholder="Enter your email for confirmation"
+              >
+            </div>
+
+            <div class="form-group file-upload-group">
+              <label>Upload Solution File</label>
+              <div class="file-upload-box" [class.has-file]="userInputs[challenge.id].file">
+                <input 
+                  type="file" 
+                  id="file-{{ challenge.id }}"
+                  (change)="onFileChange($event, challenge.id)"
+                  required
+                >
+                <div class="upload-content">
+                  <span class="upload-icon">📤</span>
+                  <span class="upload-text">
+                    {{
+                      userInputs[challenge.id].file?.name || 
+                      'Drag & drop files or click to browse'
+                    }}
+                  </span>
+                </div>
+              </div>
+              <div *ngIf="userInputs[challenge.id].file" class="file-info">
+                <span class="file-name">{{ userInputs[challenge.id].file?.name }}</span>
+                <span class="file-size">{{ formatFileSize(userInputs[challenge.id].file?.size) }}</span>
+              </div>
+              <div class="file-requirements">
+                <small>Accepted formats: .pdf, .doc, .zip (max 10MB)</small>
+              </div>
+            </div>
+
+            <button type="submit" class="submit-btn primary">
+              <span class="btn-icon">⬆️</span>
+              Upload Solution
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

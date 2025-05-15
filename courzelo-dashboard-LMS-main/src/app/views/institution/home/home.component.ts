@@ -32,6 +32,7 @@ export class HomeComponent implements OnInit {
       private authenticationService: AuthenticationService
   ) { }
   institutionID: string;
+  isAdmin: boolean = false;
   imageSrc: any;
   loading = false;
     code: string;
@@ -51,6 +52,8 @@ export class HomeComponent implements OnInit {
         }
     );
   ngOnInit() {
+    const user = this.currentUser; // ou récupéré d’un service
+  this.isAdmin = user?.roles?.includes('ADMIN');
     this.institutionID = this.route.snapshot.paramMap.get('institutionID');
       this.route.queryParams.subscribe(params => {
           this.code = params['code'];

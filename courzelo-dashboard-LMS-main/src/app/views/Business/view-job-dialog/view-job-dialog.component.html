@@ -1,0 +1,78 @@
+<div class="container">
+
+    <h2 class="mb-4">Job Offer Details</h2>
+  
+    <div class="content-scroll">
+    <div class="row mb-2">
+      <div class="col-4 font-weight-bold">Title:</div>
+      <div class="col-8">{{ jobOffer.title }}</div>
+    </div>
+  
+    <div class="row mb-2">
+      <div class="col-4 font-weight-bold">Description:</div>
+      <div class="col-8">{{ jobOffer.description }}</div>
+    </div>
+  
+    <div class="row mb-2">
+      <div class="col-4 font-weight-bold">Creation Date:</div>
+      <div class="col-8">{{ jobOffer.creationDate | date }}</div>
+    </div>
+  
+    <div class="row mb-2">
+      <div class="col-4 font-weight-bold">Start Date:</div>
+      <div class="col-8">{{ jobOffer.startDate | date }}</div>
+    </div>
+  
+    <div class="row mb-2">
+      <div class="col-4 font-weight-bold">Deadline Date:</div>
+      <div class="col-8">{{ jobOffer.deadlineDate | date }}</div>
+    </div>
+  
+    <div class="row mb-2">
+      <div class="col-4 font-weight-bold">Job Type:</div>
+      <div class="col-8">{{ jobOffer.jobType }}</div>
+    </div>
+  
+    <div class="row mb-2">
+      <div class="col-4 font-weight-bold">Location Type:</div>
+      <div class="col-8">{{ jobOffer.locationType }}</div>
+    </div>
+  
+    <div *ngIf="jobOffer.locationType === 'on site' || jobOffer.locationType === 'mixed'" class="row mb-2">
+      <div class="col-4 font-weight-bold">Location:</div>
+      <div class="col-8">{{ jobOffer.location }}</div>
+    </div>
+  
+    <div class="row mb-2">
+      <div class="col-4 font-weight-bold">Country:</div>
+      <div class="col-8">{{ jobOffer.country }}</div>
+    </div>
+  
+    <div class="row mb-2">
+      <div class="col-4 font-weight-bold">Industry:</div>
+      <div class="col-8">{{ jobOffer.industry }}</div>
+    </div>
+  
+    <div class="row mb-2">
+      <div class="col-4 font-weight-bold">Sub Industry:</div>
+      <div class="col-8">{{ jobOffer.subIndustry }}</div>
+    </div>
+  
+    <div class="row mb-2">
+      <div class="col-4 font-weight-bold">Requirement:</div>
+      <div class="col-8">{{ jobOffer.requirement }}</div>
+    </div>
+  
+    <div class="row mb-2">
+      <div class="col-4 font-weight-bold">Salary:</div>
+      <div class="col-8">{{ jobOffer.salary }}</div>
+    </div>
+  
+  
+  
+    <div class="text-right ">
+      <button type="button" class="btn btn-primary" (click)="closeDialog()">Close</button>
+    </div>
+  </div>
+  </div>
+  

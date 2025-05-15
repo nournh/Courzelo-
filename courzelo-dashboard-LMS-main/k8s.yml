@@ -3,51 +3,55 @@
   gather_facts: false
   become: yes
   tasks:
-    - name: Create deployment
+    - name: Create deployment for courzelo-front-webapp
       k8s:
         api_version: apps/v1
         kind: Deployment
-        name: deployment-courzelo-front
+        name: deployment-courzelo-dashboard-lms
         namespace: courzelo
         definition:
           metadata:
             labels:
-              app: courzelo-front
+              app: courzelo-lms
           spec:
             replicas: 1
             selector:
               matchLabels:
-                app: courzelo-front
+                app: courzelo-lms
             template:
               metadata:
                 labels:
-                  app: courzelo-front
+                  app: courzelo-lms
               spec:
                 containers:
                   - name: courzelo-front-webapp
-                    image: hamdiiala/courzelo-front-webapp:v1.1.7-dev
+                    image: cyrine995/courzelo-front-webapp:v1.1.10-dev
                     imagePullPolicy: Always
                     ports:
                       - containerPort: 80
-        context: "kubernetes-admin@kubernetes"
+                nodeSelector:
+                  kubernetes.io/hostname: prod
+        context: "default"
         verify_ssl: false
-        
-    - name: Create service
+
+    - name: Create service for courzelo-dashboard-lms
       k8s:
         api_version: v1
         kind: Service
-        name: service-courzelo-front
+        name: service-courzelo-dashboard-lms
         namespace: courzelo
         definition:
           metadata:
             labels:
-              app: courzelo-front
+              app: courzelo-lms
           spec:
             selector:
-              app: courzelo-front
+              app: courzelo-lms
             ports:
               - protocol: TCP
-                port: 4225
+                port: 4202
                 targetPort: 80
-                nodePort : 31411
+                nodePort: 31415
             type: NodePort
+        context: "default"
+        verify_ssl: false

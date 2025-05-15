@@ -1,0 +1,187 @@
+.modal-content {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 1.2rem;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 0.85rem;
+    overflow: hidden;
+  
+    .modal-header {
+      background: #f8f9fa;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #dee2e6;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+  
+      .modal-title {
+        font-weight: 600;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+  
+      .close {
+        background: transparent;
+        border: none;
+        font-size: 1.3rem;
+        color: #333;
+        transition: transform 0.2s;
+  
+        &:hover {
+          transform: scale(1.2);
+          color: #dc3545;
+        }
+      }
+    }
+  
+    .modal-body {
+      padding: 1.5rem;
+  
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+  
+        .form-group {
+          margin-bottom: 1rem;
+  
+          label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 0.4rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+          }
+  
+          // Custom Radio Buttons
+          input[type='radio'] {
+            display: none;
+  
+            + label {
+              position: relative;
+              padding-left: 2rem;
+              cursor: pointer;
+  
+              &::before {
+                content: '\f10c'; // empty circle (Font Awesome)
+                font-family: 'Font Awesome 6 Free';
+                font-weight: 900;
+                position: absolute;
+                left: 0;
+                top: 50%;
+                transform: translateY(-50%);
+                color: rgb(7, 41, 77);
+                font-size: 1rem;
+              }
+            }
+  
+            &:checked + label::before {
+              content: '\f111'; // solid circle (Font Awesome)
+              color: #FFC600;
+            }
+          }
+  
+          select,
+          input[type='email'] {
+            width: 100%;
+            border-radius: 1.5rem;
+            border: 1px solid #ced4da;
+            background: #ffffff;
+            font-size: 0.85rem;
+            transition: border 0.3s ease;
+  
+            &:focus {
+              border-color: #0d6efd;
+              outline: none;
+              box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+            }
+          }
+        }
+  
+        button[type="submit"] {
+          align-self: flex-end;  // Aligne le bouton à droite
+          background-color: rgb(7, 41, 77);
+          padding: 0.6rem 1.2rem;
+          border-radius: 1.5rem;
+          color: white;
+          font-size: 0.9rem;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          transition: background 0.3s ease;
+  
+          i {
+            font-size: 1rem;
+          }
+  
+          &:hover {
+            background-color: #FFC600;
+          }
+  
+          &:disabled {
+            background-color: #adb5bd;
+          }
+        }
+  
+        .btn-primary {
+          background: rgb(7, 41, 77);
+          border: none;
+          padding: 0.5rem 1.3rem;
+          border-radius: 2rem;
+          color: #fff;
+          font-size: 0.85rem;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          transition: background 0.3s ease;
+  
+          i {
+            font-size: 0.9rem;
+          }
+  
+          &:hover {
+            background: #FFC600;
+          }
+  
+          &:disabled {
+            background: #adb5bd;
+          }
+        }
+      }
+    }
+  
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid #dee2e6;
+      display: flex;
+      justify-content: flex-end;
+  
+      .btn-secondary {
+        background: #e9ecef;
+        color: #495057;
+        padding: 0.5rem 1.2rem;
+        border-radius: 2rem;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        border: none;
+        transition: background 0.3s ease;
+  
+        &:hover {
+          background: #ced4da;
+        }
+  
+        i {
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+  
+  

@@ -12,6 +12,8 @@ import {ActivatedRoute} from '@angular/router';
 import {UserEmailsRequest} from '../../../shared/models/institution/UserEmailsRequest';
 import {TeacherTimeslotsComponent} from './teacher-timeslots/teacher-timeslots.component';
 import {UpdateSkillsComponent} from "./update-skills/update-skills.component";
+import * as Papa from 'papaparse';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-users',
@@ -58,20 +60,45 @@ export class UsersComponent implements OnInit {
   selectedRole = '';
   availableRoles: string[] = ['admin', 'student', 'teacher'];
      pasteSplitPattern = /[\s,;]+/;
-  ngOnInit() {
-    this.institutionID = this.route.snapshot.paramMap.get('institutionID');
-    this.institutionService.getInstitutionByID(this.institutionID).subscribe(
+     ngOnInit() {
+      this.institutionID = this.route.snapshot.paramMap.get('institutionID');
+      
+      // Charge d'abord les données depuis le localStorage
+      const savedUsers = localStorage.getItem(`institution_${this.institutionID}_users`);
+      if (savedUsers) {
+        try {
+          this.users = JSON.parse(savedUsers);
+          this.totalItemsUsers = this.users.length;
+          this._currentPageUsers = 1;
+          this.totalPagesUsers = Math.ceil(this.totalItemsUsers / this.itemsPerPageUsers);
+        } catch (e) {
+          console.error('Error parsing saved users', e);
+        }
+      }
+    
+      // Charge les infos de l'institution
+      this.institutionService.getInstitutionByID(this.institutionID).subscribe(
         response => {
           this.currentInstitution = response;
         }
-    );
-    this.getInstitutionUsers(this.currentPageUsers, this.itemsPerPageUsers, null, null);
-    this.searchControlUsers.valueChanges
+      );
+    
+      // Si pas d'utilisateurs en cache, charge depuis l'API
+      if (this.users.length === 0) {
+        this.getInstitutionUsers(this.currentPageUsers, this.itemsPerPageUsers, null, null);
+      }
+    
+      // Configuration de la recherche
+      this.searchControlUsers.valueChanges
         .pipe(debounceTime(200))
         .subscribe(value => {
+          // Pour les recherches, on utilise toujours l'API
           this.getInstitutionUsers(1, this.itemsPerPageUsers, value, null);
         });
-  }
+    }
+    private saveUsersToLocalStorage(): void {
+      localStorage.setItem(`institution_${this.institutionID}_users`, JSON.stringify(this.users));
+    }
     public onSelect(item) {
         console.log('tag selected: value is ' + item);
         console.log('students emails: ' + this.addUserForm.get('studentsEmails').value);
@@ -196,7 +223,7 @@ export class UsersComponent implements OnInit {
             }
         );
     }
-  removeInstitutionUser(user: InstitutionUserResponse) {
+  /*removeInstitutionUser(user: InstitutionUserResponse) {
     this.loadingUsers = true;
     this.institutionService.removeInstitutionUser(this.institutionID, user.email).subscribe(
         response => {
@@ -212,6 +239,12 @@ export class UsersComponent implements OnInit {
             this.loadingUsers = false;
         }
     );
+  }*/
+  removeInstitutionUser(user: InstitutionUserResponse) {
+    this.users = this.users.filter(u => u.email !== user.email);
+    this.totalItemsUsers = this.users.length;
+    this.saveUsersToLocalStorage(); // <-- N'oubliez pas cette ligne
+    this.toastr.success('Utilisateur supprimé');
   }
   modalConfirmUserFunction(content: any, user: InstitutionUserResponse) {
     this.currentUser = user;
@@ -257,4 +290,100 @@ export class UsersComponent implements OnInit {
         this.loadingUsers = false;
     }
   }
+
+  exportUsersToCSV() {
+    if (!this.users || this.users.length === 0) {
+      this.toastr.warning('No users to export');
+      return;
+    }
+  
+    const csvRows = [];
+    const headers = ['Full Name', 'Email', 'Roles', 'Country', 'Skills'];
+    csvRows.push(headers.join(','));
+  
+    this.users.forEach(user => {
+      const fullName = `${user.name || ''} ${user.lastname || ''}`.trim();
+      const email = user.email || '';
+      const roles = user.roles ? user.roles.join('|') : '';
+      const country = user.country || '';
+      const skills = user.skills ? user.skills.join('|') : '';
+      const row = [fullName, email, roles, country, skills].map(val => `"${val}"`).join(',');
+      csvRows.push(row);
+    });
+  
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'users_export.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+  
+
+  onFileSelected(event: any): void {
+    const file: File = event.target.files[0];
+    if (!file) return;
+  
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (result) => {
+        console.log('Résultat du parsing CSV:', result);
+  
+        const newUsers = result.data
+          .filter(row => row['Email'])
+          .map(row => {
+            const rawEmail = (row['Email'] || '').toString().trim();
+            const email = rawEmail.replace(/[.,]$/, '');
+  
+            return {
+              email: email,
+              name: row['Full Name']?.split(' ')[0]?.trim() || '',
+              lastname: row['Full Name']?.split(' ').slice(1).join(' ')?.trim() || '',
+              roles: row['Roles'] ? [row['Roles'].toLowerCase()] : ['student'],
+              country: row['Country']?.trim() || '',
+              skills: row['Skills']?.split('|').map((s: string) => s.trim()) || [],
+              disponibilitySlots: []
+            };
+          });
+  
+        const uniqueNewUsers = newUsers.filter(newUser =>
+          !this.users.some(user => user.email === newUser.email)
+        );
+  
+        this.users = [...this.users, ...uniqueNewUsers];
+        this.totalItemsUsers = this.users.length;
+  
+        // 🎯 Appel automatique à inviteUser() avec les emails du fichier CSV
+        const emailsFromCsv = uniqueNewUsers.map(u => u.email);
+        if (emailsFromCsv.length > 0) {
+          this.addUserForm.controls.studentsEmails.setValue(emailsFromCsv);
+          this.addUserForm.controls.role.setValue('student'); // ou 'admin' si tu veux utiliser le rôle du CSV
+          this.inviteUser(); // Appel à ta fonction
+        }
+  
+        // 🔔 Notification
+        Swal.fire({
+          title: uniqueNewUsers.length > 0 ? 'Import réussi' : 'Aucun nouvel utilisateur',
+          text: uniqueNewUsers.length > 0
+            ? `${uniqueNewUsers.length} utilisateur(s) ajouté(s) à la liste`
+            : 'Tous les utilisateurs existaient déjà',
+          icon: uniqueNewUsers.length > 0 ? 'success' : 'info'
+        });
+  
+        // Réinitialise le champ fichier
+        event.target.value = '';
+      },
+      error: (err) => {
+        Swal.fire('Erreur', 'Impossible de lire le fichier CSV: ' + err.message, 'error');
+      }
+    });
+  }
+  
+  
+
 }

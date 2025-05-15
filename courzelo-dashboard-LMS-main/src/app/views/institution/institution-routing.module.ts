@@ -10,11 +10,25 @@ import {InvitationsComponent} from './invitations/invitations.component';
 import {ProgramsComponent} from './programs/programs.component';
 import {CoursesComponent} from './courses/courses.component';
 import {ModulesComponent} from "./modules/modules.component";
+import { TeacherTimeslotsComponent } from './users/teacher-timeslots/teacher-timeslots.component';
+import { ViewCoursesComponent } from './class/view-courses/view-courses.component';
+import { TimetableComponent } from './timetable/timetable.component';
+import { RoomsComponent } from './rooms/rooms.component';
+import { TeacherProgramsComponent } from './teacher-programs/teacher-programs.component';
+
 
 const routes: Routes = [
   {
     path: ':institutionID/users',
     component: UsersComponent,
+    canActivate: [AuthGuard],
+    data: {
+        roles: ['ADMIN']
+    }
+  },
+  {
+    path: ':institutionID/test',
+    component: TeacherTimeslotsComponent,
     canActivate: [AuthGuard],
     data: {
         roles: ['ADMIN']
@@ -45,6 +59,14 @@ const routes: Routes = [
     }
   },
   {
+    path: ':institutionID/module/:moduleID/courses/view',
+    component: ViewCoursesComponent,
+    canActivate: [AuthGuard],
+    data: {
+      roles: ['ADMIN']
+    }
+  },
+  {
     path: ':institutionID/programs/:programID/modules',
     component: ModulesComponent,
     canActivate: [AuthGuard],
@@ -67,10 +89,32 @@ const routes: Routes = [
     data: {
       roles: ['ADMIN']
     }
+  },{
+    path: ':institutionID/timetable',
+    component: TimetableComponent,
+    canActivate: [AuthGuard],
+    data: {
+      roles: ['ADMIN']
+    }
+  },{
+    path: ':institutionID/rooms',
+    component: RoomsComponent,
+    canActivate: [AuthGuard],
+    data: {
+      roles: ['ADMIN']
+    }
   },
   {
     path: ':institutionID',
     component: HomeComponent
+  },
+  {
+    path: ':institutionID/teacher/programs',
+    component: TeacherProgramsComponent,
+    canActivate: [AuthGuard],
+    data: {
+      roles: ['TEACHER','STUDENT']
+    }
   },
   {
     path: 'classroom/:classroomID',

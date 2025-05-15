@@ -160,7 +160,7 @@
           align-items: center;
           font-size: 13px;
           cursor: pointer;
-          padding: 12px 24px;
+          padding: 12px 12px;
           transition: 0.15s all ease-in;
           &:hover {
             background: $gray-200;
@@ -219,7 +219,7 @@
           background: $background;
           transition: all 0.4s ease-in-out;
           li.nav-item a {
-            padding: 12px 12px 12px 50px;
+            padding: 12px 12px 12px 24px;
           }
         }
       }

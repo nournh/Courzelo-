@@ -1,0 +1,105 @@
+<div class="modal-header bg-light">
+    <h5 class="modal-title font-weight-bold">
+      <i class="fas fa-chart-line mr-2"></i>
+      Statistiques de progression - {{program?.name || 'Non spécifié'}}
+    </h5>
+    <button type="button" class="close" (click)="activeModal.dismiss()" aria-label="Fermer">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  
+  <div class="modal-body p-4">
+    <!-- État de chargement -->
+    <div *ngIf="loading" class="text-center py-4 text-danger">
+      <div class="spinner-border" role="status"></div>
+      <p class="mt-2 font-weight-bold">Chargement des données...</p>
+    </div>
+  
+    <!-- Aucune donnée disponible -->
+    <div *ngIf="!loading && displayStats?.isEmpty" class="alert alert-warning text-center">
+      <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+      <p class="mb-0">Aucune donnée statistique disponible</p>
+    </div>
+  
+    <!-- Affichage des statistiques -->
+    <div *ngIf="!loading && displayStats && !displayStats.isEmpty">
+      <!-- Résumé global -->
+      <div class="global-summary mb-4 p-3 bg-light rounded">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="mb-0 font-weight-bold">Progression Globale</h6>
+          <span class="badge" [ngClass]="getProgressClass(displayStats.completionPercentage)">
+            {{displayStats.completionPercentage}}%
+          </span>
+        </div>
+        <div class="progress" style="height: 10px;">
+          <div class="progress-bar" 
+               [ngClass]="getProgressClass(displayStats.completionPercentage)"
+               [style.width.%]="displayStats.completionPercentage">
+          </div>
+        </div>
+      </div>
+  
+      <!-- Détails par module -->
+      <div *ngIf="displayStats.modules?.length" class="modules-section">
+        <h6 class="section-title font-weight-bold mb-3">
+          <i class="fas fa-cubes mr-2"></i>Détails par Module
+        </h6>
+  
+        <div *ngFor="let module of displayStats.modules" class="module-card card mb-3">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="module-name mb-0 font-weight-bold">
+                {{module.name || 'Module sans nom'}}
+              </h6>
+              <span class="badge badge-primary">
+                {{module.totalCourses}} cours
+              </span>
+            </div>
+  
+            <!-- Statistiques du module -->
+            <div class="module-stats mb-3">
+              <div class="d-flex justify-content-between mb-2">
+                <span>Progression:</span>
+                <strong>
+                  <span class="text-success">{{module.completedCourses}}</span> /
+                  <span>{{module.totalCourses}}</span>
+                  <span class="ml-2">({{module.percentage}}%)</span>
+                </strong>
+              </div>
+              <div class="progress thin-progress">
+                <div class="progress-bar" 
+                     [ngClass]="getProgressClass(module.percentage)"
+                     [style.width.%]="module.percentage">
+                </div>
+              </div>
+            </div>
+  
+            <!-- Liste des cours -->
+            <div *ngIf="module.courses?.length" class="courses-list">
+              <h6 class="subtitle small font-weight-bold mb-2">
+                <i class="fas fa-book mr-1"></i>Liste des cours:
+              </h6>
+              <ul class="list-group list-group-flush">
+                <li *ngFor="let course of module.courses" 
+                    class="list-group-item d-flex justify-content-between align-items-center py-2 px-1">
+                  <span class="text-truncate">{{course.name || 'Cours sans nom'}}</span>
+                  <span class="badge badge-pill" [ngClass]="{
+                    'badge-success': course.isCompleted,
+                    'badge-warning': !course.isCompleted
+                  }">
+                    {{course.isCompleted ? '✓ Terminé' : '⌛ En cours'}}
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="modal-footer bg-light">
+    <button type="button" class="btn btn-outline-secondary" (click)="activeModal.close()">
+      <i class="fas fa-times mr-2"></i>Fermer
+    </button>
+  </div>

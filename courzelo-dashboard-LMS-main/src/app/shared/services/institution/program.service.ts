@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import {ProgramRequest} from '../../models/institution/ProgramRequest';
 import {PaginatedProgramsResponse} from '../../models/institution/PaginatedProgramsResponse';
 import {ProgramResponse} from '../../models/institution/ProgramResponse';
 import {SimplifiedProgramResponse} from '../../models/institution/SimplifiedProgramResponse';
 import {CalendarEventRequest} from "../../models/institution/CalendarEventRequest";
+import { tap, map, catchError } from 'rxjs/operators'; // Ajoutez cette ligne
 
 
 @Injectable({
@@ -61,4 +62,57 @@ export class ProgramService {
   downloadExcel(programID: string) {
     return this.http.get(`${this.baseUrl}/${programID}/download-excel`, { responseType: 'blob' });
   }
+  
+  getProgramsForTeacher(page: number, sizePerPage: number, institutionID: string, keyword?: string) {
+  let url = `${this.baseUrl}/teacher?page=${page}&sizePerPage=${sizePerPage}&institutionID=${institutionID}`;
+  if (keyword) {
+    url += `&keyword=${keyword}`;
+  }
+  return this.http.get<PaginatedProgramsResponse>(url);
+}
+getProgramsForStudent(page: number, sizePerPage: number, institutionID: string, keyword?: string): Observable<PaginatedProgramsResponse> {
+  let url = `${this.baseUrl}/student?page=${page}&sizePerPage=${sizePerPage}&institutionID=${institutionID}`;
+  if (keyword) {
+    url += `&keyword=${keyword}`;
+  }
+  return this.http.get<PaginatedProgramsResponse>(url);
+}
+getProgramStats(programId: string): Observable<any> {
+  return this.http.get<any>(`${this.baseUrl}/${programId}/stats`);
+}
+
+// Dans program.service.ts
+getProgramProgress(programId: string): Observable<any> {
+  console.log('Appel API avec programId:', programId); // Debug
+  
+  if (!programId || programId === 'undefined') {
+    console.warn('ID invalide bloqué au niveau du service');
+    return of(this.getEmptyStats());
+  }
+
+  return this.http.get<any>(`${this.baseUrl}/${programId}/progress`).pipe(
+    tap(response => console.log('Réponse brute:', response)), // Debug
+    catchError(error => {
+      console.error('Détails erreur API:', {
+        url: error.url,
+        status: error.status,
+        message: error.message
+      });
+      return of(this.getEmptyStats());
+    })
+  );
+}
+private getEmptyStats() {
+  return {
+    completedCourses: 0,
+    totalCourses: 0,
+    remainingCourses: 0,
+    completionPercentage: 0,
+    modules: [],
+    isEmpty: true
+  };
+}
+
+
+  
 }

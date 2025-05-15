@@ -10,11 +10,25 @@
 </div>
 <div *ngIf="currentInstitution"  class="card user-profile o-hidden mb-4">
     <div class="header-cover" style="background-image: url('assets/images/photo-wide-4.jpg')"></div>
-    <div class="user-info">
-        <img class="profile-picture avatar-lg mb-2" [src]="imageSrc || 'assets/default-university-image.jpg' " alt="">
-        <p class="m-0 text-24">{{currentInstitution?.name}} </p>
-        <p class="text-muted m-0">{{currentInstitution?.slogan||""}}</p>
-    </div>
+    <div class="user-info text-center position-relative">
+        <img class="profile-picture avatar-lg mb-2" 
+             [src]="imageSrc || 'assets/default-university-image.jpg'" 
+             alt="Institution Logo">
+      
+        <div class="d-flex justify-content-center align-items-center mb-1">
+          <h4 class="m-0 text-24">{{ currentInstitution?.name }}</h4>
+          
+          <a *ngIf="isAdmin"
+               [routerLink]="['/institution', currentInstitution?.id, 'edit']"
+               class="edit-button"
+               title="Edit this institution">
+              <i class="i-Pen-2"></i>
+         </a>
+        </div>
+      
+        <p class="text-muted m-0">{{ currentInstitution?.slogan || '' }}</p>
+      </div>
+      
     <div class="card-body">
         <ul ngbNav #nav="ngbNav" class="nav nav-tabs nav-center" (navChange)="onTabChange($event)">
             <li [ngbNavItem]="1" class="nav-item">

@@ -13,17 +13,47 @@
         </nav>
     </div>
     <div class="separator-breadcrumb border-top mb-3"></div>
-    <div class="row mr-4 justify-content-between">
+
+<div class="row justify-content-between align-items-center mb-3">
+  <!-- Search input -->
+  <div class="col-md-6 col-lg-4">
+    <div class="input-group position-relative">
+        <input id="keyword-users" placeholder="Search Users" [formControl]="searchControlUsers" class="form-control form-control-rounded pr-5" type="text">
+        <span class="input-group-text position-absolute search-icon"><i class="i-Magnifi-Glass1"></i></span>
+    </div>
+  </div>
+   <!-- <div class="row mr-4 justify-content-between">
         <div class="col-md-6 col-lg-4">
             <div class="input-group mb-3 ">
                 <input id="keyword-users" placeholder="Search Users" [formControl]="searchControlUsers" class="form-control form-control-rounded pr-5" type="text">
                 <span class="input-group-text position-absolute search-icon"><i class="i-Magnifi-Glass1"></i></span>
             </div>
-        </div>
-        <div class="col-md-2  " style="height: 4vh;">
-            <button (click)="addUserModel(addUser)" class="btn btn-primary btn-rounded m-1 " ><i class="fa fa-add"></i> Invite user</button>
-        </div>
+        </div>-->
+ 
+  <!-- Buttons aligned and spaced properly -->
+  <div class="col-md-6 col-lg-8">
+    <div style="display: flex; gap: 1rem; justify-content: flex-end; flex-wrap: wrap;">
+      
+      <!-- Invite User -->
+      <button (click)="addUserModel(addUser)" class="btn btn-primary btn-rounded">
+        <i class="fa fa-user-plus me-2"></i> Invite User
+      </button>
+
+      <!-- Export CSV -->
+      <button (click)="exportUsersToCSV()" class="btn btn-success d-flex align-items-center">
+        <i class="bi bi-download me-2"></i> Export CSV
+      </button>
+
+      <!-- Import CSV -->
+      <label class="btn btn-outline-primary d-flex align-items-center mb-0">
+        <i class="bi bi-upload me-2"></i> Import CSV
+        <input type="file" accept=".csv" (change)="onFileSelected($event)" hidden />
+      </label>
+
     </div>
+  </div>
+</div>
+
    <div class="row">
     <div class="col-md-12">
         <div class="card o-hidden">
@@ -66,10 +96,26 @@
                         </div>
                     </ng-template>
                     <ng-template #deleteBtnTemplate let-row="row" let-value="value">
-                        <button class="btn btn-primary ml-2" type="button" *ngIf="row.roles.includes('teacher')" (click)="openTeacherTimeslotsModal(row)"><i class="fas fa-clock"></i> Manage Timeslots</button>
-                        <button class="btn btn-primary ml-2" type="button" *ngIf="row.roles.includes('teacher')" (click)="openUpdateSkillsModal(row)"><i class="fas fa-pencil-alt"></i> Update Skills</button>
-                        <button class=" btn btn-danger btn-rounded m-1" (click)="modalConfirmUserFunction(modalConfirmUser,row)"><i class="i-Remove-User"></i> Remove</button>
-                    </ng-template>
+                        <div class="d-flex flex-wrap align-items-center">
+                            <button class="btn btn-info btn-sm mr-2" [routerLink]="['/pages/profile', row.email]">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-warning btn-sm mr-2" [routerLink]="['/edit-user', row.id]">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" (click)="modalConfirmUserFunction(modalConfirmUser,row)">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                            <button class="btn btn-primary ml-2" type="button" *ngIf="row.roles.includes('teacher')" (click)="openTeacherTimeslotsModal(row)">
+                                <i class="fas fa-clock"></i> Timeslots
+                            </button>
+                            <button class="btn btn-primary ml-2" type="button" *ngIf="row.roles.includes('teacher')" (click)="openUpdateSkillsModal(row)">
+                                <i class="fas fa-pencil-alt"></i> Skills
+                            </button>
+                          
+                        </div>
+                    </ng-template>
+                    
                     <ng-template #editBtnTemplate let-row="row" let-value="value">
                         <form class="form-inline" (ngSubmit)="changeUserRole(row)">
                             <div class="form-group mr-2">

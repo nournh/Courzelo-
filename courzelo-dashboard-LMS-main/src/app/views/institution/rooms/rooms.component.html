@@ -1,0 +1,17 @@
+<div class="container mt-4">
+  <h2>Classroom Management</h2>
+  
+  <!-- Formulaire pour ajouter une nouvelle salle -->
+  <div class="form-group">
+    <input [(ngModel)]="newRoomName" class="room-input" placeholder="Enter room name" />
+    <button (click)="addRoom()" class="add-btn">Add Room</button>
+  </div>
+
+  <!-- Liste des salles -->
+  <ul class="room-list">
+    <li *ngFor="let room of rooms" class="room-item">
+      {{ room.name }} 
+      <button (click)="deleteRoom(room.id)" class="delete-btn">Delete</button>
+    </li>
+  </ul>
+</div>

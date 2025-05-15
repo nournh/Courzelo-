@@ -1,4 +1,5 @@
 export interface InstitutionResponse {
+    rooms: string[]; 
     id?: string;
     name?: string;
     slogan?: string;

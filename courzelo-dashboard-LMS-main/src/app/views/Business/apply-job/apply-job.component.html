@@ -1,0 +1,46 @@
+<div class="apply-container">
+  <!-- Left Pane: CV Upload -->
+  <div class="cv-pane">
+    <h2>Upload Your CV</h2>
+    <label class="file-upload">
+      <input type="file" (change)="onFileSelected($event)" />
+      <span *ngIf="!fileName">Choose File</span>
+      <span *ngIf="fileName">{{ fileName }}</span>
+    </label>
+    <p class="hint">Accepted format: PDF, DOCX</p>
+  </div>
+
+  <!-- Right Pane: Prehiring Test -->
+  <div class="test-pane" *ngIf="test">
+    <h2>{{ test.title }}</h2>
+    <form [formGroup]="applyForm">
+      <div *ngFor="let question of test.questions; let i = index" class="question-block">
+        <h4>{{ i + 1 }}. {{ question.questionLabel }}</h4>
+
+        <div class="options">
+          <label
+            *ngFor="let option of mergeResponses(question)"
+            class="option"
+          >
+            <input
+              type="checkbox"
+              [value]="option"
+              (change)="onCheckboxChange($event, i)"
+              [checked]="answers.at(i).value.includes(option)"
+            />
+            {{ option }}
+          </label>
+        </div>
+      </div>
+    </form>
+    <div class="score-banner" *ngIf="score !== null">
+      <p>Your test score: <strong>{{ score }}/100</strong></p>
+    </div>
+    
+  </div>
+</div>
+
+<!-- Footer Section -->
+<div class="footer">
+  <button (click)="submitApplication()">Submit Application</button>
+</div>
